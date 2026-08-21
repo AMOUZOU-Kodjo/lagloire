@@ -140,7 +140,9 @@ export function brandedHtml({ kicker, title, message, ctaLabel, ctaUrl, htmlBody
         .join("")
     : "";
   return `<!doctype html>
-<html lang="fr"><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+<html lang="fr"><head><meta charset="utf-8" /><meta name="color-scheme" content="light only" /></head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escape(title)} — Temple du Dieu Vivant</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:28px 12px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e6e6;box-shadow:0 1px 3px rgba(0,0,0,.06);">
@@ -165,7 +167,7 @@ export function brandedHtml({ kicker, title, message, ctaLabel, ctaUrl, htmlBody
           <hr style="border:none;border-top:1px solid #e5e6e6;margin:0 0 14px;" />
           <p style="margin:0;font-size:11px;line-height:1.6;color:#9ca3af;">
             ${escape(footerNote || "Vous recevez cet email car vous êtes abonné aux actualités du Temple du Dieu Vivant.")}
-            <br/><a href="${siteUrl()}" style="color:#2f9e93;text-decoration:none;">etdv.org</a> · Église Temple du Dieu Vivant — Lomé, Togo
+            <br/><a href="${siteUrl()}" style="color:#2f9e93;text-decoration:none;">${(() => { try { return new URL(siteUrl()).host; } catch { return siteUrl(); } })()}</a> · Église Temple du Dieu Vivant — Lomé, Togo
           </p>
         </td></tr>
       </table>
