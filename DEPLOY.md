@@ -28,6 +28,7 @@ git push -u origin main
 | `MAIL_FROM` | `ETDV <phipsipy@gmail.com>` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | ta config Gmail (mot de passe d'application) |
 | `CONTACT_NOTIFY_EMAIL` | `phipsipy@gmail.com` |
+| `BREVO_API_KEY` | clé API Brevo (recommandé — voir section 5) |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | voir section 5 (stockage des fichiers) |
 
 3. Déploie → l'API sera sur `https://etdv-api.onrender.com/api`
@@ -58,7 +59,19 @@ git push -u origin main
 Effet : le backend Render ne s'endort plus → il garde Neon éveillé →
 les prières partent bien à 05h00 et le chat du direct reste fonctionnel.
 
-## 5. Stockage des fichiers — Cloudinary (gratuit, 25 Go)
+## 5. Emails — Brevo (gratuit, 300/jour) + stockage des fichiers — Cloudinary
+
+### Emails via Brevo (recommandé en production)
+
+1. Crée un compte gratuit sur [brevo.com](https://www.brevo.com)
+2. **Senders & IP → Senders → Add sender** : vérifie `phipsipy@gmail.com` (code reçu par email)
+3. **SMTP & API → API Keys → Generate new key** (préfixe `xkeysib-`)
+4. Sur Render : variable `BREVO_API_KEY` = la clé → Save
+
+L'ordre de priorité des canaux : Brevo → Resend → SMTP. Sans aucun canal,
+les codes OTP sont loggés dans la console du serveur (dev uniquement).
+
+### Stockage Cloudinary
 
 Les photos/vidéos/audios uploadés (galerie, églises…) sont envoyés vers **Cloudinary**
 au lieu du disque éphémère de Render — ils survivent donc aux redéploiements.
