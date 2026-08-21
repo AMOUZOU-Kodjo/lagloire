@@ -17,6 +17,9 @@ const getTransporter = () => {
     port,
     secure: port === 465, // 465 = TLS implicite ; 587 = STARTTLS
     auth: SMTP_USER ? { user: SMTP_USER, pass: SMTP_PASS } : undefined,
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 15_000,
   });
   return transporter;
 };
