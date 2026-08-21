@@ -11,10 +11,11 @@ const getTransporter = () => {
   if (transporter) return transporter;
   const { SMTP_HOST, SMTP_USER, SMTP_PASS } = process.env;
   if (!SMTP_HOST) return null;
+  const port = Number(process.env.SMTP_PORT) || 587;
   transporter = nodemailer.createTransport({
     host: SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false,
+    port,
+    secure: port === 465, // 465 = TLS implicite ; 587 = STARTTLS
     auth: SMTP_USER ? { user: SMTP_USER, pass: SMTP_PASS } : undefined,
   });
   return transporter;
@@ -29,7 +30,7 @@ export async function sendOtpEmail(email, code) {
   const t = getTransporter();
   if (t) {
     await t.sendMail({
-      from: process.env.SMTP_FROM || "ETDV <no-reply@etdv.tg>",
+      from: process.env.MAIL_FROM || process.env.SMTP_FROM || "ETDV <no-reply@etdv.tg>",
       to: email,
       subject: "Votre code de connexion ETDV",
       html: `
