@@ -4,7 +4,9 @@ import { useAuthStore } from "../../store/authStore";
 import { useSocketStore } from "../../store/socketStore";
 import { useNotificationsStore } from "../../store/notificationsStore";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:4000";
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
+  (import.meta.env.PROD ? "https://etdv-api.onrender.com" : "http://localhost:4000");
 
 export default function SocketProvider({ children }) {
   const user = useAuthStore((s) => s.user);

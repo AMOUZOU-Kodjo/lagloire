@@ -1,7 +1,10 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+// En production : API Render par défaut ; en dev : serveur local.
+const baseURL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? "https://etdv-api.onrender.com/api" : "http://localhost:4000/api");
 
 /** Origine du backend (sans /api) — pour résoudre les fichiers servis par l'API (/uploads/…). */
 export function apiOrigin() {
