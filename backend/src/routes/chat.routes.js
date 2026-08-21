@@ -99,6 +99,22 @@ router.get(
   })
 );
 
+// GET /api/chat/contacts — membres joignables (pour démarrer une discussion)
+// NB : déclaré avant /:roomId pour éviter que "contacts" soit pris pour un identifiant.
+router.get(
+  "/contacts",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const users = await prisma.user.findMany({
+      where: { isActive: true, id: { not: req.user.id } },
+      select: { id: true, firstName: true, lastName: true, role: true },
+      orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+      take: 200,
+    });
+    ok(res, users);
+  })
+);
+
 // GET /api/chat/:roomId?page&limit — historique (participants uniquement), ordre ascendant
 router.get(
   "/:roomId",

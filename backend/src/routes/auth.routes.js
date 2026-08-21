@@ -16,8 +16,6 @@ import { generateCode, sendOtpEmail } from "../services/otp.service.js";
 const router = Router();
 const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
-const STAFF_ROLES = ["ADMIN", "APOTRE", "PASTEUR"];
-
 // POST /api/auth/otp/send  { email }
 router.post(
   "/otp/send",
@@ -122,7 +120,7 @@ router.post(
   })
 );
 
-// POST /api/auth/login — connexion staff (email + mot de passe) du back-office
+// POST /api/auth/login — connexion email + mot de passe (tout compte actif en possédant un)
 router.post(
   "/login",
   asyncHandler(async (req, res) => {
@@ -130,12 +128,7 @@ router.post(
     const password = String(req.body.password ?? "");
 
     const user = await prisma.user.findUnique({ where: { email }, include: userInclude });
-    const valid =
-      user &&
-      user.password &&
-      user.isActive &&
-      STAFF_ROLES.includes(user.role) &&
-      bcrypt.compareSync(password, user.password);
+    const valid = user && user.password && user.isActive && bcrypt.compareSync(password, user.password);
 
     if (!valid) return fail(res, 401, "Email ou mot de passe incorrect.");
 

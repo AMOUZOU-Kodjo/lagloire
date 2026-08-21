@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, ArrowRight, ShieldCheck, AlertCircle, CheckCircle2, KeyRound, Feather, Lock, MessageCircle } from "lucide-react";
 import { Input, Button } from "../../../components/ui";
 import AuthShell from "../components/AuthShell";
 import OtpInput from "../components/OtpInput";
+import { authApi } from "../../../api/auth.api";
 import { useOtpLogin } from "../hooks/useOtpLogin";
+import { useAuthStore } from "../../../store/authStore";
 
 const STEP_EMAIL = "email";
 const STEP_CODE = "code";
@@ -25,6 +27,36 @@ export default function ConnexionPage() {
     lastName, setLastName, phone, setPhone, isNewUser, error, loading,
     sendOtp, verifyOtp, backToEmail,
   } = useOtpLogin();
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const loginSuccess = useAuthStore((s) => s.loginSuccess);
+
+  // Mode alternatif : connexion classique email + mot de passe
+  const [passwordMode, setPasswordMode] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const loginWithPassword = async (event) => {
+    event.preventDefault();
+    setPasswordError(null);
+    setPasswordLoading(true);
+    try {
+      const res = await authApi.login({ email: email.trim(), password });
+      loginSuccess({ user: res.data.user, accessToken: res.data.accessToken });
+      navigate(location.state?.from?.pathname || "/app", { replace: true });
+    } catch (err) {
+      const message = err.response?.data?.message || "Connexion impossible.";
+      setPasswordError(
+        message.includes("incorrect")
+          ? "Email ou mot de passe incorrect. Pas encore de mot de passe ? Recevez un code par email."
+          : message
+      );
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   const [resent, setResent] = useState(false);
   const resentTimer = useRef(null);
@@ -83,7 +115,7 @@ export default function ConnexionPage() {
         ))}
       </div>
 
-      {step === STEP_EMAIL && (
+      {step === STEP_EMAIL && !passwordMode && (
         <form onSubmit={(e) => { e.preventDefault(); sendOtp(); }} className="card rounded-lg p-7">
           <Input
             label="ADRESSE EMAIL"
@@ -112,10 +144,66 @@ export default function ConnexionPage() {
             <div className="flex-1 h-px bg-line" />
           </div>
 
-          <Button as={Link} to="/admin/connexion" variant="outline" className="w-full">
-            <ShieldCheck size={15} className="mr-2" />
-            Connexion administration (mot de passe)
+          <Button type="button" variant="outline" className="w-full" onClick={() => { setPasswordMode(true); setPasswordError(null); }}>
+            <Lock size={15} className="mr-2" />
+            Se connecter avec un mot de passe
           </Button>
+        </form>
+      )}
+
+      {step === STEP_EMAIL && passwordMode && (
+        <form onSubmit={loginWithPassword} className="card rounded-lg p-7">
+          <Input
+            label="ADRESSE EMAIL"
+            type="email"
+            required
+            autoFocus
+            autoComplete="email"
+            name="email"
+            disabled={passwordLoading}
+            icon={<Mail size={16} />}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="marcellin@exemple.com"
+          />
+          <Input
+            label="MOT DE PASSE"
+            type="password"
+            required
+            autoComplete="current-password"
+            name="password"
+            disabled={passwordLoading}
+            icon={<KeyRound size={16} />}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Votre mot de passe"
+            className="mt-1"
+          />
+
+          <ErrorAlert message={passwordError} />
+
+          <Button type="submit" className="w-full mt-5" disabled={passwordLoading || !email.trim() || !password}>
+            {passwordLoading ? "Connexion…" : "Se connecter"}
+            {!passwordLoading && <ArrowRight size={16} className="ml-2" />}
+          </Button>
+
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-line" />
+            <span className="text-xs font-mono text-soft">OU</span>
+            <div className="flex-1 h-px bg-line" />
+          </div>
+
+          <Button type="button" variant="outline" className="w-full" onClick={() => { setPasswordMode(false); setPassword(""); setPasswordError(null); }}>
+            <Mail size={15} className="mr-2" />
+            Recevoir un code par email
+          </Button>
+
+          <p className="text-xs text-soft mt-4 text-center">
+            Mot de passe oublié ou non défini&nbsp;?
+            <button type="button" onClick={() => { setPasswordMode(false); setPasswordError(null); }} className="text-gold-dim font-semibold hover:underline ml-1">
+              Utilisez le code par email
+            </button>
+          </p>
         </form>
       )}
 

@@ -128,6 +128,13 @@ router.put(
   "/profile/me",
   requireAuth,
   asyncHandler(async (req, res) => {
+    // Photo de profil : data URI (image redimensionnée côté navigateur) ou URL.
+    let avatarUrl;
+    if (typeof req.body.avatarUrl === "string") {
+      avatarUrl = req.body.avatarUrl.trim() || null;
+      if (avatarUrl && avatarUrl.length > 300_000)
+        throw new AppError(400, "Image trop volumineuse — choisissez une photo plus légère.");
+    }
     const user = await prisma.user.update({
       where: { id: req.user.id },
       data: {
@@ -140,12 +147,14 @@ router.put(
               bio: req.body.bio || null,
               gender: normEnum(req.body.gender, GENDERS),
               maritalStatus: normEnum(req.body.maritalStatus, MARITAL),
+              avatarUrl: avatarUrl ?? null,
             },
             update: {
               city: req.body.city ?? undefined,
               bio: req.body.bio ?? undefined,
               gender: normEnum(req.body.gender, GENDERS) ?? undefined,
               maritalStatus: normEnum(req.body.maritalStatus, MARITAL) ?? undefined,
+              ...(avatarUrl !== undefined ? { avatarUrl } : {}),
             },
           },
         },
@@ -169,25 +178,29 @@ router.delete(
   })
 );
 
-// PUT /api/users/password/me — changement de mot de passe (staff)
+// PUT /api/users/password/me — définit ou modifie le mot de passe du compte connecté.
+// Compte sans mot de passe (créé via OTP) : définition directe, sans mot de passe actuel.
 router.put(
   "/password/me",
   requireAuth,
   asyncHandler(async (req, res) => {
-    const { currentPassword, newPassword } = req.body;
+    const currentPassword = req.body.currentPassword ? String(req.body.currentPassword) : "";
+    const newPassword = String(req.body.newPassword ?? "");
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    if (!user?.password)
-      throw new AppError(400, "Ce compte n'a pas de mot de passe.");
-    if (!currentPassword || !bcrypt.compareSync(user.password, currentPassword))
-      throw new AppError(400, "Mot de passe actuel incorrect.");
-    if (!newPassword || String(newPassword).length < 6)
+    if (!user) throw new AppError(404, "Utilisateur introuvable.");
+    if (newPassword.length < 6)
       throw new AppError(400, "Le nouveau mot de passe doit faire au moins 6 caractères.");
+    if (
+      user.password &&
+      (!currentPassword || !bcrypt.compareSync(currentPassword, user.password))
+    )
+      throw new AppError(400, "Mot de passe actuel incorrect.");
 
     await prisma.user.update({
       where: { id: user.id },
       data: { password: bcrypt.hashSync(newPassword, 10) },
     });
-    ok(res, { message: "Mot de passe modifié." });
+    ok(res, { message: user.password ? "Mot de passe modifié." : "Mot de passe défini.", hasPassword: true });
   })
 );
 

@@ -17,3 +17,9 @@ export const passwordSchema = z
     path: ["newPassword"],
     message: "Le nouveau mot de passe doit être différent",
   });
+
+/** Définition initiale d'un mot de passe (compte créé par code OTP — pas de mot de passe actuel). */
+export const setPasswordSchema = z.object({
+  currentPassword: z.string().optional(),
+  newPassword: z.string().min(6, "Mot de passe (min 6 caractères)"),
+});

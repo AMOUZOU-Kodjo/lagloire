@@ -4,11 +4,11 @@
 /** Inclut le profil et l'église sur un utilisateur. */
 export const userInclude = { profile: true, church: true };
 
-/** Retire le hash du mot de passe avant envoi. */
+/** Retire le hash du mot de passe avant envoi (expose seulement hasPassword). */
 export const safeUser = (user) => {
   if (!user) return user;
   const { password: _password, ...rest } = user;
-  return rest;
+  return { ...rest, hasPassword: Boolean(user.password) };
 };
 
 /** Forme utilisateur du frontend : { id, email, firstName, lastName, phone, role, churchId, profile, church }. */
