@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js";
-import { notifySubscribers, siteUrl } from "./email.service.js";
+import { notifySubscribers, prayerEmailBody, siteUrl } from "./email.service.js";
 
 /**
  * Planificateur de prières matinales (sans dépendance externe).
@@ -63,7 +63,7 @@ export async function publishNextPrayer() {
   await notifySubscribers({
     kicker: "Prière matinale",
     title: prayer.title,
-    message: `${prayer.bibleVerse ? `« ${prayer.bibleVerse} » — ` : ""}${String(prayer.content).slice(0, 220)}`,
+    htmlBody: prayerEmailBody(prayer),
     ctaLabel: "Lire la prière",
     ctaUrl: `${siteUrl()}/prieres-matinales`,
   }).catch((err) => console.warn("[scheduler] Email prière non envoyé :", err.message));

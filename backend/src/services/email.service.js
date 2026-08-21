@@ -180,7 +180,7 @@ export function brandedHtml({ kicker, title, message, ctaLabel, ctaUrl, htmlBody
  * Notifie tous les abonnés actifs (newsletter) — appel non bloquant.
  * Les envois sont séquentiels avec un délai pour respecter la limite Resend.
  */
-export async function notifySubscribers({ kicker, title, message, ctaUrl, ctaLabel }) {
+export async function notifySubscribers({ kicker, title, message, ctaUrl, ctaLabel, htmlBody }) {
   try {
     const subs = await prisma.subscription.findMany({
       where: { active: true },
@@ -188,7 +188,7 @@ export async function notifySubscribers({ kicker, title, message, ctaUrl, ctaLab
     });
     if (subs.length === 0) return;
 
-    const html = brandedHtml({ kicker, title, message, ctaUrl, ctaLabel });
+    const html = brandedHtml({ kicker, title, message, ctaUrl, ctaLabel, htmlBody });
     for (const [i, sub] of subs.entries()) {
       await sendEmail({ to: sub.email, subject: `${title} — Temple du Dieu Vivant`, html });
       if (i < subs.length - 1) await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
@@ -197,6 +197,27 @@ export async function notifySubscribers({ kicker, title, message, ctaUrl, ctaLab
   } catch (err) {
     console.error("[email] notifySubscribers a échoué:", err.message);
   }
+}
+
+/** Corps HTML dédié aux emails de prière matinale :
+ *  verset centré en italique, texte en paragraphes aérés,
+ *  troncature propre (frontière de mot + « … ») au-delà de 600 caractères. */
+export function prayerEmailBody({ content, bibleVerse }) {
+  const escape = (s = "") =>
+    String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  let text = String(content || "").trim();
+  if (text.length > 600) text = `${text.slice(0, 600).replace(/\s+\S*$/, "")} …`;
+  const verse = bibleVerse
+    ? `<p style="margin:0 0 18px;text-align:center;font-size:15px;font-style:italic;color:#1d857a;">« ${escape(bibleVerse)} »</p>`
+    : "";
+  const paragraphs = text
+    .split(/\n{2,}/)
+    .map(
+      (p) =>
+        `<p style="margin:0 0 16px;font-size:15px;line-height:1.75;color:#4b5563;">${escape(p).replace(/\n/g, "<br/>")}</p>`
+    )
+    .join("");
+  return `${verse}${paragraphs}`;
 }
 
 /** Notifie l'équipe (boîte de réception) qu'un nouveau message de contact est arrivé. */

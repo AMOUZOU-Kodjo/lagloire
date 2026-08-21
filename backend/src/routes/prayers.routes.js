@@ -2,7 +2,7 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { ok, AppError, asyncHandler } from "../lib/helpers.js";
 import { requireAuth, requireRole, verifyToken } from "../middleware/auth.js";
-import { notifySubscribers, siteUrl } from "../services/email.service.js";
+import { notifySubscribers, prayerEmailBody, siteUrl } from "../services/email.service.js";
 import { generatePrayers } from "../services/prayerGenerator.service.js";
 
 const router = Router();
@@ -38,7 +38,7 @@ function sendPrayerEmail(prayer) {
   notifySubscribers({
     kicker: "Prière matinale",
     title: prayer.title,
-    message: `${prayer.bibleVerse ? `« ${prayer.bibleVerse} » — ` : ""}${String(prayer.content).slice(0, 220)}`,
+    htmlBody: prayerEmailBody(prayer),
     ctaLabel: "Lire la prière",
     ctaUrl: `${siteUrl()}/prieres-matinales`,
   }).catch(() => {});
