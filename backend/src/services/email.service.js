@@ -40,12 +40,19 @@ export const emailConfigured = () =>
 
 /** Canal Brevo (API HTTPS, aucun port SMTP) — recommandé en production cloud. */
 async function sendViaBrevo({ to, subject, html }) {
-  const raw = process.env.MAIL_FROM || "ETDV <phipsipy@gmail.com>";
+  // Tolère les guillemets/espaces collés autour de MAIL_FROM (erreur fréquente sur Render).
+  const raw = (process.env.MAIL_FROM || "ETDV <phipsipy@gmail.com>")
+    .trim()
+    .replace(/^["']+|["']+$/g, "")
+    .trim();
   const match = raw.match(/^(.*?)\s*<(.+)>$/);
-  const sender = {
-    name: (match?.[1] || "ETDV").trim(),
-    email: (match?.[2] || raw).trim(),
-  };
+  const senderEmail = (match?.[2] || raw).trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail)) {
+    throw new Error(
+      `MAIL_FROM invalide (« ${raw} ») — format attendu : ETDV <phipsipy@gmail.com> sans guillemets.`
+    );
+  }
+  const sender = { name: (match?.[1] || "ETDV").replace(/^["']+|["']+$/g, "").trim() || "ETDV", email: senderEmail };
   const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
