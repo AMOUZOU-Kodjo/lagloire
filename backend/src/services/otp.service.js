@@ -10,7 +10,7 @@ export const generateCode = () =>
  * pour permettre les connexions en développement local.
  */
 export async function sendOtpEmail(email, code) {
-  await sendEmail({
+  const sent = await sendEmail({
     to: email,
     subject: "Votre code de connexion ETDV",
     html: `
@@ -21,4 +21,7 @@ export async function sendOtpEmail(email, code) {
         <p style="color:#6b7280;font-size:13px">Ce code expire dans 10 minutes. Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
       </div>`,
   });
+  if (!sent) {
+    throw new Error("Envoi de l'email impossible — vérifiez la configuration Brevo/SMTP sur le serveur.");
+  }
 }
