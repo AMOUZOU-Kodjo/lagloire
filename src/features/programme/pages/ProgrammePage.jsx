@@ -22,7 +22,23 @@ const TAB_DESCRIPTIONS = {
 
 const TONE = { JOURNALIER: "gold", HEBDOMADAIRE: "palm", MENSUEL: "muted", ANNUEL: "brick" };
 
+const WEEKDAY_LONG = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const WEEKDAY_SHORT = ["DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"];
+
+/** Prochaine occurrence d'un programme récurrent hebdomadaire. */
+function nextOccurrence(program) {
+  const now = new Date();
+  const target = Number(program.dayOfWeek);
+  const days = (target - now.getDay() + 7) % 7;
+  const next = new Date(now);
+  next.setDate(now.getDate() + days);
+  return next;
+}
+
 function getStatus(program) {
+  if (program.dayOfWeek !== null && program.dayOfWeek !== undefined) {
+    return { label: "Chaque semaine", dot: "bg-gold", text: "text-gold-dim" };
+  }
   const now = new Date();
   const start = new Date(program.startDate);
   const end = program.endDate ? new Date(program.endDate) : null;
@@ -34,15 +50,33 @@ function getStatus(program) {
 function ProgramCard({ program }) {
   const status = getStatus(program);
   const typeLabel = TABS.find((t) => t.value === program.type)?.label ?? program.type;
-  const range = program.endDate
-    ? `${formatDate(program.startDate, "d MMM yyyy")} — ${formatDate(program.endDate, "d MMM yyyy")}`
-    : formatDate(program.startDate, "d MMM yyyy");
+  const recurring = program.dayOfWeek !== null && program.dayOfWeek !== undefined;
+  const hours =
+    program.startTime || program.endTime
+      ? `${program.startTime ?? ""}${program.endTime ? ` – ${program.endTime}` : ""}`
+      : null;
+
+  let range;
+  let chipTop;
+  let chipBottom;
+  if (recurring) {
+    const jour = WEEKDAY_LONG[Number(program.dayOfWeek)] ?? "";
+    range = `Tous les ${jour}s${hours ? ` · ${hours}` : ""} — prochain : ${formatDate(nextOccurrence(program), "EEEE d MMMM")}`;
+    chipTop = WEEKDAY_SHORT[Number(program.dayOfWeek)] ?? "?";
+    chipBottom = hours ? hours : "hebdo";
+  } else {
+    range = program.endDate
+      ? `${formatDate(program.startDate, "d MMM yyyy")} — ${formatDate(program.endDate, "d MMM yyyy")}`
+      : formatDate(program.startDate, "d MMM yyyy");
+    chipTop = formatDate(program.startDate, "d");
+    chipBottom = formatDate(program.startDate, "MMM");
+  }
 
   return (
     <Card className="p-5 flex items-start gap-4 transition-all duration-300 hover:border-gold/40 hover:shadow-card">
       <div className="flex flex-col items-center justify-center w-16 shrink-0 rounded-lg bg-gold/10 border border-gold/20 py-2">
-        <span className="font-display text-xl text-gold leading-none">{formatDate(program.startDate, "d")}</span>
-        <span className="text-[10px] uppercase tracking-wide text-soft mt-1">{formatDate(program.startDate, "MMM")}</span>
+        <span className={`font-display text-xl text-gold leading-none ${recurring ? "text-base tracking-wide" : ""}`}>{chipTop}</span>
+        <span className="text-[10px] uppercase tracking-wide text-soft mt-1">{chipBottom}</span>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2">

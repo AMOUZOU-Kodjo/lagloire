@@ -70,7 +70,7 @@ router.post(
   requireAuth,
   requireRole(...STAFF),
   asyncHandler(async (req, res) => {
-    const { title, description, type, startDate, endDate, location, churchId } = req.body;
+    const { title, description, type, startDate, endDate, location, churchId, dayOfWeek, startTime, endTime } = req.body;
     if (!title || !startDate) throw new AppError(400, "Titre et date de début requis.");
 
     const program = await prisma.program.create({
@@ -82,6 +82,9 @@ router.post(
         endDate: endDate ? new Date(endDate) : null,
         location: location || null,
         churchId: churchId || null,
+        dayOfWeek: Number.isInteger(Number(dayOfWeek)) && dayOfWeek !== "" ? Number(dayOfWeek) : null,
+        startTime: startTime || null,
+        endTime: endTime || null,
       },
     });
     ok(res, program);
@@ -94,7 +97,7 @@ router.put(
   requireAuth,
   requireRole(...STAFF),
   asyncHandler(async (req, res) => {
-    const { title, description, type, startDate, endDate, location, churchId } = req.body;
+    const { title, description, type, startDate, endDate, location, churchId, dayOfWeek, startTime, endTime } = req.body;
     const program = await prisma.program.update({
       where: { id: req.params.id },
       data: {
@@ -105,6 +108,11 @@ router.put(
         endDate: endDate ? new Date(endDate) : null,
         location,
         churchId,
+        dayOfWeek: dayOfWeek === "" || dayOfWeek === null || dayOfWeek === undefined
+          ? null
+          : Number.isInteger(Number(dayOfWeek)) ? Number(dayOfWeek) : undefined,
+        startTime: startTime ?? null,
+        endTime: endTime ?? null,
       },
     });
     ok(res, program);

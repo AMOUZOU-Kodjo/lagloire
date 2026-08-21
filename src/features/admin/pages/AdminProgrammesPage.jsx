@@ -10,7 +10,7 @@ import { label } from "../../../lib/labels";
 import { formatDate } from "../../../lib/formatters";
 import { Badge, Button, Card, Modal, Input, Textarea, Select, FormField, PageHeader, Skeleton } from "../../../components/ui";
 import { useMutationFeedback } from "../../../hooks/useMutationFeedback";
-import { programSchema, programDefaultValues } from "../schemas/programSchema";
+import { programSchema, programDefaultValues, WEEKDAYS } from "../schemas/programSchema";
 
 const TYPE_TONES = {
   ANNUEL: "gold",
@@ -42,6 +42,9 @@ export default function AdminProgrammesPage() {
       startDate: p.startDate ? String(p.startDate).slice(0, 10) : "",
       endDate: p.endDate ? String(p.endDate).slice(0, 10) : "",
       location: p.location ?? "",
+      dayOfWeek: p.dayOfWeek === null || p.dayOfWeek === undefined ? "" : String(p.dayOfWeek),
+      startTime: p.startTime ?? "",
+      endTime: p.endTime ?? "",
     });
     setModalOpen(true);
   }
@@ -114,10 +117,18 @@ export default function AdminProgrammesPage() {
                   <Badge tone={TYPE_TONES[p.type] ?? "muted"} className="flex-shrink-0">{label("PROGRAM_TYPE", p.type)}</Badge>
                 </div>
                 <div className="space-y-1.5 mt-3 text-xs text-soft">
-                  <p className="flex items-center gap-1.5 font-mono">
-                    <Calendar size={12} className="flex-shrink-0" />
-                    {formatDate(p.startDate)}{p.endDate ? ` → ${formatDate(p.endDate)}` : ""}
-                  </p>
+                  {p.dayOfWeek !== null && p.dayOfWeek !== undefined ? (
+                    <p className="flex items-center gap-1.5 font-medium text-gold-dim">
+                      <Calendar size={12} className="flex-shrink-0" />
+                      Chaque {WEEKDAYS.find((d) => d.value === String(p.dayOfWeek))?.label ?? "?"}
+                      {p.startTime && ` · ${p.startTime}${p.endTime ? ` – ${p.endTime}` : ""}`}
+                    </p>
+                  ) : (
+                    <p className="flex items-center gap-1.5 font-mono">
+                      <Calendar size={12} className="flex-shrink-0" />
+                      {formatDate(p.startDate)}{p.endDate ? ` → ${formatDate(p.endDate)}` : ""}
+                    </p>
+                  )}
                   {p.location && (
                     <p className="flex items-center gap-1.5 truncate">
                       <MapPin size={12} className="flex-shrink-0" /> {p.location}
@@ -171,6 +182,27 @@ export default function AdminProgrammesPage() {
             <FormField label="DATE DE FIN" name="endDate" error={errors.endDate?.message}>
               <Input type="date" {...register("endDate")} />
             </FormField>
+          </div>
+          <div className="rounded-lg border border-line bg-sand/60 p-3.5 space-y-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-soft">
+              Répétition hebdomadaire — optionnel
+            </p>
+            <FormField label="JOUR" name="dayOfWeek">
+              <Select {...register("dayOfWeek")}>
+                <option value="">Aucune (programme ponctuel)</option>
+                {WEEKDAYS.map((d) => (
+                  <option key={d.value} value={d.value}>{d.label}</option>
+                ))}
+              </Select>
+            </FormField>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="HEURE DE DÉBUT" name="startTime">
+                <Input type="time" {...register("startTime")} />
+              </FormField>
+              <FormField label="HEURE DE FIN" name="endTime">
+                <Input type="time" {...register("endTime")} />
+              </FormField>
+            </div>
           </div>
           <FormField label="LIEU" name="location" error={errors.location?.message}>
             <Input placeholder="Lieu (optionnel)" {...register("location")} />
