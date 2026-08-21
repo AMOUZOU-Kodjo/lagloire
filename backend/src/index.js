@@ -170,6 +170,11 @@ app.use(errorHandler);
 // ===================== Démarrage =====================
 server.listen(PORT, () => {
   console.log(`[ETDV API] démarrée sur http://localhost:${PORT}/api`);
+  const brevoKey = (process.env.BREVO_API_KEY || "").trim();
+  console.log(
+    `[email] Canaux configurés — Brevo: ${brevoKey ? "oui" : "non"} (longueur clé: ${brevoKey.length})` +
+      `, Resend: ${process.env.RESEND_API_KEY ? "oui" : "non"}, SMTP: ${process.env.SMTP_HOST || "aucun"}:${process.env.SMTP_PORT || "?"}`
+  );
   startScheduler();
   startKeepAlive();
 });
