@@ -38,6 +38,7 @@ const MessageriePage = lazy(() => import("../features/messagerie/pages/Messageri
 const MesDonsPage = lazy(() => import("../features/don/pages/MesDonsPage"));
 
 const AdminDashboardPage = lazy(() => import("../features/admin/pages/AdminDashboardPage"));
+const AdminActualitesPage = lazy(() => import("../features/admin/pages/AdminActualitesPage"));
 const AdminUtilisateursPage = lazy(() => import("../features/admin/pages/AdminUtilisateursPage"));
 const AdminMediasPage = lazy(() => import("../features/admin/pages/AdminMediasPage"));
 const AdminModerationPage = lazy(() => import("../features/admin/pages/AdminModerationPage"));
@@ -110,6 +111,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <AdminPageGuard path="/admin"><Suspense fallback={PageFallback}><AdminDashboardPage /></Suspense></AdminPageGuard> },
+      { path: "actualites", element: <AdminPageGuard path="/admin/actualites"><Suspense fallback={PageFallback}><AdminActualitesPage /></Suspense></AdminPageGuard> },
       { path: "utilisateurs", element: <AdminPageGuard path="/admin/utilisateurs"><Suspense fallback={PageFallback}><AdminUtilisateursPage /></Suspense></AdminPageGuard> },
       { path: "messagerie", element: <Suspense fallback={PageFallback}><MessageriePage /></Suspense> },
       { path: "messagerie/:roomId", element: <Suspense fallback={PageFallback}><MessageriePage /></Suspense> },

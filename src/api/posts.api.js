@@ -8,4 +8,6 @@ export const postsApi = {
   remove: (id) => unwrap(http.delete(`/posts/${id}`)),
   markRead: (id) => unwrap(http.post(`/posts/${id}/read`)),
   readers: (id) => unwrap(http.get(`/posts/${id}/readers`)),
+  categories: () => unwrap(http.get("/posts/categories")),
+  createCategory: (name) => unwrap(http.post("/posts/categories", { name })),
 };

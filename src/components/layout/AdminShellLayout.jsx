@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { BarChart3, UsersRound, Users, ShieldCheck, Gift, Church, CalendarDays, CalendarRange, RadioTower, Sunrise, Images, MessageSquare, LayoutDashboard, UserCircle, HandCoins, Menu } from "lucide-react";
+import { BarChart3, UsersRound, Users, ShieldCheck, Gift, Church, CalendarDays, CalendarRange, RadioTower, Sunrise, Images, MessageSquare, LayoutDashboard, UserCircle, HandCoins, Menu, Newspaper } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useAuthStore } from "../../store/authStore";
 import { useNotificationsStore } from "../../store/notificationsStore";
@@ -12,6 +12,7 @@ import Avatar from "../ui/Avatar";
 const ADMIN_LINKS = [
   { to: "/admin", label: "Tableau de bord", icon: BarChart3, end: true },
   { to: "/admin/utilisateurs", label: "Utilisateurs", icon: UsersRound },
+  { to: "/admin/actualites", label: "Actualités", icon: Newspaper },
   { to: "/admin/medias", label: "Médias", icon: Images },
   { to: "/admin/moderation", label: "Modération", icon: ShieldCheck },
   { to: "/admin/dons-contacts", label: "Dons & contacts", icon: Gift },

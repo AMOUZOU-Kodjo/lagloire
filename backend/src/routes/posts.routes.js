@@ -36,6 +36,35 @@ router.get(
   })
 );
 
+// GET /api/posts/categories — liste des catégories (doit être déclaré avant /:id)
+router.get(
+  "/categories",
+  asyncHandler(async (_req, res) => {
+    const categories = await prisma.postCategory.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { posts: true } } },
+    });
+    ok(res, categories);
+  })
+);
+
+// POST /api/posts/categories — staff : créer une catégorie
+router.post(
+  "/categories",
+  requireAuth,
+  requireRole(...STAFF),
+  asyncHandler(async (req, res) => {
+    const name = String(req.body?.name || "").trim();
+    if (!name) throw new AppError(400, "Nom de catégorie requis.");
+    const category = await prisma.postCategory.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+    ok(res, category);
+  })
+);
+
 // GET /api/posts/:id — détail (avec contenu complet et compteur de lectures)
 router.get(
   "/:id",
@@ -96,7 +125,7 @@ router.put(
         excerpt,
         content,
         categoryId,
-        publishedAt: publishedAt ? new Date(publishedAt) : undefined,
+        publishedAt: publishedAt === null ? null : publishedAt ? new Date(publishedAt) : undefined,
       },
       include: postInclude,
     });
