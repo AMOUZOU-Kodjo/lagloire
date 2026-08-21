@@ -36,7 +36,36 @@ function getLogoDataUri() {
 }
 
 export const emailConfigured = () =>
-  Boolean(process.env.RESEND_API_KEY || process.env.SMTP_HOST);
+  Boolean(process.env.BREVO_API_KEY || process.env.RESEND_API_KEY || process.env.SMTP_HOST);
+
+/** Canal Brevo (API HTTPS, aucun port SMTP) — recommandé en production cloud. */
+async function sendViaBrevo({ to, subject, html }) {
+  const raw = process.env.MAIL_FROM || "ETDV <phipsipy@gmail.com>";
+  const match = raw.match(/^(.*?)\s*<(.+)>$/);
+  const sender = {
+    name: (match?.[1] || "ETDV").trim(),
+    email: (match?.[2] || raw).trim(),
+  };
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": process.env.BREVO_API_KEY,
+      "content-type": "application/json",
+      accept: "application/json",
+    },
+    body: JSON.stringify({
+      sender,
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(`Échec Brevo (${response.status}) : ${body.slice(0, 200)}`);
+  }
+  return true;
+}
 
 let smtpTransporter = null;
 function getSmtp() {
@@ -57,7 +86,17 @@ function getSmtp() {
 
 /** Envoi bas niveau : Resend si configuré, sinon SMTP (Gmail…). Retourne true si accepté. */
 export async function sendEmail({ to, subject, html }) {
-  // Canal 1 — Resend
+  // Canal 1 — Brevo (API HTTPS)
+  if (process.env.BREVO_API_KEY) {
+    try {
+      return await sendViaBrevo({ to, subject, html });
+    } catch (err) {
+      console.error(`[email] Échec Brevo pour ${to}:`, err.message);
+      // On tente les canaux suivants avant d'abandonner.
+    }
+  }
+
+  // Canal 2 — Resend
   if (process.env.RESEND_API_KEY) {
     try {
       const res = await fetch(RESEND_ENDPOINT, {
@@ -76,7 +115,7 @@ export async function sendEmail({ to, subject, html }) {
     }
   }
 
-  // Canal 2 — SMTP (Gmail, Brevo relais, etc.)
+  // Canal 3 — SMTP (Gmail, Brevo relais, etc.)
   const transporter = getSmtp();
   if (transporter) {
     try {
