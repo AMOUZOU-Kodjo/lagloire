@@ -65,9 +65,9 @@ export default function EvenementsPage() {
         ) : events.length === 0 ? (
           <EmptyState icon="📅" title="Aucun événement" description="Il n'y a pas d'événement correspondant à ce filtre pour le moment." />
         ) : (
-          <Stagger className="grid md:grid-cols-3 gap-6" delay={0.15}>
+          <Stagger className="grid md:grid-cols-3 gap-6 items-stretch" delay={0.15}>
             {events.map((event) => (
-              <Item key={event.id}><EventCard event={event} index={events.indexOf(event)} /></Item>
+              <Item key={event.id} className="h-full"><EventCard event={event} /></Item>
             ))}
           </Stagger>
         )}
