@@ -252,8 +252,8 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Navigation */}
-            <div className="lg:col-span-2">
+            {/* Navigation — masquée sur mobile (redondante avec le menu) */}
+            <div className="hidden md:block lg:col-span-2">
               <h3 className="font-display text-lg text-[#37cdbe] mb-4 flex items-center gap-2">
                 Navigation
                 <span className="h-px flex-1 bg-gradient-to-r from-[#37cdbe] to-transparent" />
@@ -279,8 +279,8 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Contact */}
-            <div className="lg:col-span-3">
+            {/* Contact — masqué sur mobile (formulaire dédié sur la page Contact) */}
+            <div className="hidden md:block lg:col-span-3">
               <h3 className="font-display text-lg text-[#37cdbe] mb-4 flex items-center gap-2">
                 Contact
                 <span className="h-px flex-1 bg-gradient-to-r from-[#37cdbe] to-transparent" />
