@@ -53,14 +53,6 @@ const TYPE_CHIP = {
   VIDEO: { icon: Video, cls: "bg-brick/10 text-brick border-brick/25" },
 };
 
-const MOCK_MEDIA = [
-  { id: "1", title: "Culte de reconnaissance", type: "PHOTO", thumbnailUrl: "/gallery/culte.svg", isApproved: true },
-  { id: "2", title: "Prédication — La foi qui déplace", type: "VIDEO", thumbnailUrl: "/gallery/predication.svg", duration: "48:12", isApproved: true },
-  { id: "3", title: "Chorale — Fête de Noël", type: "PHOTO", thumbnailUrl: "/gallery/noel.svg", isApproved: true },
-  { id: "4", title: "Louange du dimanche — Audio", type: "AUDIO", thumbnailUrl: "/gallery/louange.svg", duration: "1:12:03", isApproved: true },
-  { id: "5", title: "Baptêmes — juin 2026", type: "PHOTO", thumbnailUrl: "/gallery/baptemes.svg", isApproved: true },
-];
-
 export default function GaleriePage() {
   const user = useAuthStore((s) => s.user);
   const [type, setType] = useState("PHOTO");
@@ -71,7 +63,6 @@ export default function GaleriePage() {
   const { data, isPending } = useQuery({
     queryKey: ["media", { type }],
     queryFn: () => mediaApi.list({ type: type || undefined, limit: 20 }).then((r) => r.data),
-    placeholderData: MOCK_MEDIA,
   });
 
   const { data: mine } = useQuery({

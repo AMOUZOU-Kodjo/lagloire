@@ -7,12 +7,6 @@ import { Stagger, Item } from "../../../components/ui/motion";
 import { formatDate } from "../../../lib/formatters";
 import { ROLE_LABELS } from "../../../lib/constants";
 
-const MOCK_PRAYERS = [
-  { id: "1", title: "Marcher par la foi, pas à pas", content: "Ce matin, retenons que la foi ne demande pas de voir tout le chemin, mais de faire le prochain pas. Dieu éclaire nos sentiers un jour à la fois, et Sa fidélité de ce matin est la garantie de celle de demain.", bibleVerse: "Psaume 119:105", createdAt: new Date().toISOString(), author: { firstName: "Ayao", lastName: "Mensah", role: "PASTEUR" } },
-  { id: "2", title: "La reconnaissance ouvre la porte de la grâce", content: "Commencez cette journée par l'action de grâce. Un cœur reconnaissant voit les mains de Dieu dans les détails ordinaires : un souffle, un sourire, une porte ouverte. La gratitude n'ignore pas les épreuves, elle choisit de fixer le regard plus haut.", bibleVerse: "1 Thessaloniciens 5:18", createdAt: "2026-07-08", author: { firstName: "Kwami", lastName: "Sedjro", role: "APOTRE" } },
-  { id: "3", title: "Persévérer malgré l'attente", content: "L'attente n'est pas un vide, c'est un atelier. C'est là que Dieu façonne la patience, affermit la foi et prépare des choses que nos yeux ne peuvent pas encore voir. Ne lâche rien : la réponse arrive au temps fixé.", bibleVerse: "Habacuc 2:3", createdAt: "2026-07-07", author: { firstName: "Essowè", lastName: "Bakonnaba", role: "PASTEUR" } },
-];
-
 // NOTE : le backend actuel ne trace pas la lecture des prières matinales (contrairement aux
 // posts via PostRead). En attendant l'ajout d'un modèle équivalent côté API, la lecture est
 // suivie localement afin de proposer l'expérience d'assiduité prévue dans les maquettes.
@@ -39,7 +33,6 @@ export default function PrieresMatinalesPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["morning-prayers"],
     queryFn: () => morningPrayersApi.list({ limit: 10 }).then((r) => r.data),
-    placeholderData: MOCK_PRAYERS,
   });
 
   const prayers = data ?? [];
