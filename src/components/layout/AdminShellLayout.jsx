@@ -6,6 +6,7 @@ import { useNotificationsStore } from "../../store/notificationsStore";
 import { canAccessAdminPage } from "../../lib/constants";
 import { RoleBadge } from "../ui/Badge";
 import NotificationBell from "../../features/notifications/components/NotificationBell";
+import Avatar from "../ui/Avatar";
 
 const ADMIN_LINKS = [
   { to: "/admin", label: "Tableau de bord", icon: BarChart3, end: true },
@@ -48,6 +49,7 @@ export default function AdminShellLayout() {
           <div className="flex items-center gap-3">
             <NotificationBell />
             {user?.role && <RoleBadge role={user.role} />}
+            <Avatar firstName={user?.firstName} lastName={user?.lastName} src={user?.profile?.avatarUrl} />
           </div>
         </header>
         <div className="p-8">

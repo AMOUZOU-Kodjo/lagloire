@@ -39,7 +39,7 @@ export default function AppShellLayout() {
           <div className="flex items-center gap-3 text-ink">
             <NotificationBell />
             {user?.role && <RoleBadge role={user.role} />}
-            <Avatar firstName={user?.firstName} lastName={user?.lastName} />
+            <Avatar firstName={user?.firstName} lastName={user?.lastName} src={user?.profile?.avatarUrl} />
           </div>
         </header>
         <div className="p-8">
