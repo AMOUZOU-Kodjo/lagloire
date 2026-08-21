@@ -10,9 +10,6 @@
 
 import { prisma } from "../lib/prisma.js";
 import nodemailer from "nodemailer";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const BATCH_DELAY_MS = 600; // limite Resend : ~2 requêtes/seconde
@@ -20,20 +17,9 @@ const BATCH_DELAY_MS = 600; // limite Resend : ~2 requêtes/seconde
 export const siteUrl = () => process.env.FRONTEND_URL || "http://localhost:5173";
 const mailFrom = () => process.env.MAIL_FROM || "ETDV <onboarding@resend.dev>";
 
-/** Logo encodé en base64 pour l'inclure directement dans les emails (visible partout). */
-let logoDataUri = null;
-function getLogoDataUri() {
-  if (logoDataUri !== null) return logoDataUri;
-  try {
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const logoPath = path.resolve(__dirname, "../../../public/etdv_logo.png");
-    logoDataUri = `data:image/png;base64,${fs.readFileSync(logoPath).toString("base64")}`;
-  } catch {
-    console.warn("[email] Logo introuvable sur le disque — il ne sera pas intégré aux emails.");
-    logoDataUri = "";
-  }
-  return logoDataUri;
-}
+/** URL publique du logo — une image hébergée s'affiche dans tous les clients mail,
+ *  contrairement au base64 (>100 Ko) que Gmail rogne ou bloque. */
+const logoUrl = () => process.env.EMAIL_LOGO_URL || `${siteUrl()}/etdv_logo.png`;
 
 export const emailConfigured = () =>
   Boolean(process.env.BREVO_API_KEY || process.env.RESEND_API_KEY || process.env.SMTP_HOST);
@@ -138,37 +124,48 @@ export async function sendEmail({ to, subject, html }) {
   return false;
 }
 
-/** Gabarit HTML de marque pour tous les emails ETDV. */
-export function brandedHtml({ kicker, title, message, ctaLabel, ctaUrl }) {
+/** Gabarit HTML de marque pour tous les emails ETDV.
+ *  `message` = texte simple (les sauts de ligne sont respectés)
+ *  ou `htmlBody` = contenu HTML prêt à l'emploi (ex. tableau de coordonnées). */
+export function brandedHtml({ kicker, title, message, ctaLabel, ctaUrl, htmlBody, footerNote }) {
   const escape = (s = "") =>
     String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const paragraphs = message
+    ? String(message)
+        .split(/\n{2,}/)
+        .map(
+          (p) =>
+            `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4b5563;">${escape(p).replace(/\n/g, "<br/>")}</p>`
+        )
+        .join("")
+    : "";
   return `<!doctype html>
-<html lang="fr"><body style="margin:0;padding:0;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2f2;padding:24px 12px;">
+<html lang="fr"><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:28px 12px;">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e6e6;">
-        <tr><td style="height:4px;background:#37cdbe;"></td></tr>
-        <tr><td style="padding:28px 32px 8px;" align="center">
-          <img src="${getLogoDataUri() || `${siteUrl()}/etdv_logo.png`}" alt="ETDV" width="56" height="56" style="border-radius:9999px;display:inline-block;" />
-          <p style="margin:10px 0 0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Temple du Dieu Vivant</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e6e6;box-shadow:0 1px 3px rgba(0,0,0,.06);">
+        <tr><td style="height:5px;background:#37cdbe;font-size:0;line-height:0;">&nbsp;</td></tr>
+        <tr><td style="padding:30px 36px 4px;" align="center">
+          <img src="${logoUrl()}" alt="ETDV — Temple du Dieu Vivant" width="64" height="64" style="display:block;border-radius:9999px;" />
+          <p style="margin:12px 0 0;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#6b7280;">Temple du Dieu Vivant</p>
         </td></tr>
-        <tr><td style="padding:8px 32px 0;">
-          ${kicker ? `<p style="margin:0 0 6px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#2f9e93;font-weight:bold;">${escape(kicker)}</p>` : ""}
-          <h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;color:#1f2937;">${escape(title)}</h1>
-          <p style="margin:0 0 18px;font-size:15px;line-height:1.65;color:#4b5563;">${escape(message)}</p>
+        <tr><td style="padding:14px 36px 8px;">
+          ${kicker ? `<p style="margin:0 0 10px;"><span style="display:inline-block;background:#e6f7f5;color:#1d857a;font-size:11px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;padding:5px 12px;border-radius:999px;">${escape(kicker)}</span></p>` : ""}
+          <h1 style="margin:0 0 18px;font-size:22px;line-height:1.3;color:#111827;">${escape(title)}</h1>
+          ${htmlBody || paragraphs}
           ${
             ctaUrl
-              ? `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#37cdbe" style="border-radius:10px;">
-                   <a href="${ctaUrl}" style="display:inline-block;padding:12px 26px;font-size:14px;font-weight:bold;color:#ffffff;text-decoration:none;">${escape(ctaLabel || "Voir sur le site")}</a>
+              ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td bgcolor="#37cdbe" style="border-radius:10px;">
+                   <a href="${ctaUrl}" style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:bold;color:#ffffff;text-decoration:none;">${escape(ctaLabel || "Voir sur le site")}</a>
                  </td></tr></table>`
               : ""
           }
         </td></tr>
-        <tr><td style="padding:26px 32px 20px;">
-          <hr style="border:none;border-top:1px solid #e5e6e6;margin:0 0 12px;" />
-          <p style="margin:0;font-size:11px;color:#9ca3af;">
-            Vous recevez cet email car vous êtes abonné aux actualités du Temple du Dieu Vivant.
-            <br/><a href="${siteUrl()}" style="color:#2f9e93;">etdv.org</a>
+        <tr><td style="padding:26px 36px 24px;">
+          <hr style="border:none;border-top:1px solid #e5e6e6;margin:0 0 14px;" />
+          <p style="margin:0;font-size:11px;line-height:1.6;color:#9ca3af;">
+            ${escape(footerNote || "Vous recevez cet email car vous êtes abonné aux actualités du Temple du Dieu Vivant.")}
+            <br/><a href="${siteUrl()}" style="color:#2f9e93;text-decoration:none;">etdv.org</a> · Église Temple du Dieu Vivant — Lomé, Togo
           </p>
         </td></tr>
       </table>
@@ -207,10 +204,28 @@ export async function notifyStaffContact({ name, email, subject, message }) {
     console.log("[email] CONTACT_NOTIFY_EMAIL absente — message de contact non transféré.");
     return;
   }
+  const escape = (s = "") =>
+    String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const field = (label, value) => `
+        <tr>
+          <td style="padding:9px 14px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid #f3f4f6;width:90px;">${escape(label)}</td>
+          <td style="padding:9px 14px;font-size:14px;font-weight:bold;color:#111827;border-bottom:1px solid #f3f4f6;">${escape(value || "—")}</td>
+        </tr>`;
+  const htmlBody = `
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e6e6;border-radius:10px;overflow:hidden;margin:0 0 18px;">
+            ${field("Nom", name)}${field("Email", email)}${field("Sujet", subject)}
+          </table>
+          <div style="background:#f9fafb;border-left:3px solid #37cdbe;border-radius:8px;padding:16px 18px;">
+            <p style="margin:0 0 8px;font-size:11px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;color:#6b7280;">Message</p>
+            <p style="margin:0;font-size:15px;line-height:1.75;color:#374151;">${escape(message).replace(/\n/g, "<br/>")}</p>
+          </div>`;
   const html = brandedHtml({
     kicker: "Nouveau message de contact",
     title: subject || `Message de ${name}`,
-    message: `${name} (${email}) écrit : « ${message} ». Répondre directement à cette adresse email.`,
+    htmlBody,
+    ctaLabel: `Répondre à ${name}`,
+    ctaUrl: `mailto:${email}?subject=${encodeURIComponent(`Re: ${subject || "Votre message"}`)}`,
+    footerNote: "Email interne — notification d'un message reçu via le formulaire de contact du site.",
   });
   await sendEmail({ to, subject: `[Contact] ${subject || name}`, html });
 }
