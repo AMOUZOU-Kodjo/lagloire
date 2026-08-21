@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { LogOut, User, Heart } from "lucide-react";
+import { LogOut, User, Heart, ShieldCheck, LayoutDashboard } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { STAFF_ROLES } from "../../lib/constants";
 import { authApi } from "../../api/auth.api";
@@ -101,10 +101,18 @@ export default function Navbar() {
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-expanded={menuOpen}
                 aria-label={`Menu ${user.firstName} ${user.lastName}`}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-bold text-white border-2 border-white shadow-sm ring-1 ring-[#e5e6e6] hover:ring-[#37cdbe] hover:scale-105 transition"
+                className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-[13px] font-bold text-white border-2 border-white shadow-sm ring-1 ring-[#e5e6e6] hover:ring-[#37cdbe] hover:scale-105 transition"
                 style={{ background: isStaff ? "#1f2937" : ACCENT }}
               >
-                {initials}
+                {user?.profile?.avatarUrl ? (
+                  <img
+                    src={user.profile.avatarUrl}
+                    alt={`${user.firstName} ${user.lastName}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  initials
+                )}
               </button>
 
               {menuOpen && (
@@ -119,11 +127,23 @@ export default function Navbar() {
                   </div>
                   <div className="p-2">
                     <Link
-                      to={home}
+                      to="/app/profil"
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#374151] hover:bg-[#f2f2f2] transition"
                     >
                       <User size={15} className="text-[#6b7280]" />
+                      Mon profil
+                    </Link>
+                    <Link
+                      to={home}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#374151] hover:bg-[#f2f2f2] transition"
+                    >
+                      {isStaff ? (
+                        <ShieldCheck size={15} className="text-[#6b7280]" />
+                      ) : (
+                        <LayoutDashboard size={15} className="text-[#6b7280]" />
+                      )}
                       {isStaff ? "Back-office" : "Espace membre"}
                     </Link>
                     <button
