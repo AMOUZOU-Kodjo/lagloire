@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, CalendarRange, CalendarClock, CalendarCheck, MapPin, Clock } from "lucide-react";
 import { programsApi } from "../../../api/programs.api";
-import { Card, Badge, EmptyState, PageHero, CardSkeleton } from "../../../components/ui";
+import { Card, Badge, EmptyState, PageHero, CardSkeleton, Modal } from "../../../components/ui";
 import { Stagger, Item } from "../../../components/ui/motion";
 import { formatDate } from "../../../lib/formatters";
 
@@ -23,7 +23,8 @@ const TAB_DESCRIPTIONS = {
 const TONE = { JOURNALIER: "gold", HEBDOMADAIRE: "palm", MENSUEL: "muted", ANNUEL: "brick" };
 
 const WEEKDAY_LONG = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
-const WEEKDAY_SHORT = ["DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"];
+
+const fmtTime = (t) => String(t || "").replace(/^(\d{2}):(\d{2})$/, "$1h$2");
 
 /** Prochaine occurrence d'un programme récurrent hebdomadaire. */
 function nextOccurrence(program) {
@@ -47,23 +48,23 @@ function getStatus(program) {
   return { label: "En cours", dot: "bg-gold", text: "text-gold-dim" };
 }
 
-function ProgramCard({ program }) {
+function ProgramCard({ program, onSelect }) {
   const status = getStatus(program);
   const typeLabel = TABS.find((t) => t.value === program.type)?.label ?? program.type;
   const recurring = program.dayOfWeek !== null && program.dayOfWeek !== undefined;
   const hours =
     program.startTime || program.endTime
-      ? `${program.startTime ?? ""}${program.endTime ? ` – ${program.endTime}` : ""}`
+      ? `${fmtTime(program.startTime)}${program.endTime ? ` – ${fmtTime(program.endTime)}` : ""}`
       : null;
 
   let range;
   let chipTop;
   let chipBottom;
   if (recurring) {
-    const jour = WEEKDAY_LONG[Number(program.dayOfWeek)] ?? "";
-    range = `Tous les ${jour}s${hours ? ` · ${hours}` : ""} — prochain : ${formatDate(nextOccurrence(program), "EEEE d MMMM")}`;
-    chipTop = WEEKDAY_SHORT[Number(program.dayOfWeek)] ?? "?";
-    chipBottom = hours ? hours : "hebdo";
+    const next = nextOccurrence(program);
+    range = `Tous les ${WEEKDAY_LONG[Number(program.dayOfWeek)] ?? ""}s${hours ? ` · ${hours}` : ""} — prochaine date : ${formatDate(next, "d MMMM")}`;
+    chipTop = formatDate(next, "d");
+    chipBottom = formatDate(next, "MMM");
   } else {
     range = program.endDate
       ? `${formatDate(program.startDate, "d MMM yyyy")} — ${formatDate(program.endDate, "d MMM yyyy")}`
@@ -73,12 +74,15 @@ function ProgramCard({ program }) {
   }
 
   return (
-    <Card className="p-5 flex items-start gap-4 transition-all duration-300 hover:border-gold/40 hover:shadow-card">
+    <Card
+      onClick={() => onSelect?.(program)}
+      className="p-5 flex items-start gap-4 h-full cursor-pointer transition-all duration-300 hover:border-gold/40 hover:shadow-card"
+    >
       <div className="flex flex-col items-center justify-center w-16 shrink-0 rounded-lg bg-gold/10 border border-gold/20 py-2">
-        <span className={`font-display text-xl text-gold leading-none ${recurring ? "text-base tracking-wide" : ""}`}>{chipTop}</span>
+        <span className="font-display text-xl text-gold leading-none">{chipTop}</span>
         <span className="text-[10px] uppercase tracking-wide text-soft mt-1">{chipBottom}</span>
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="font-medium text-ink">{program.title}</h3>
           <Badge tone={TONE[program.type] ?? "muted"}>{typeLabel}</Badge>
@@ -86,7 +90,7 @@ function ProgramCard({ program }) {
         {program.description && (
           <p className="text-sm text-soft mt-1.5 line-clamp-2 leading-relaxed">{program.description}</p>
         )}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-soft">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-auto pt-3 text-xs text-soft">
           {program.location && (
             <span className="inline-flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-gold" />
@@ -107,8 +111,73 @@ function ProgramCard({ program }) {
   );
 }
 
+function ProgramDetails({ program }) {
+  const status = getStatus(program);
+  const recurring = program.dayOfWeek !== null && program.dayOfWeek !== undefined;
+  const typeLabel = TABS.find((t) => t.value === program.type)?.label ?? program.type;
+  const hours =
+    program.startTime || program.endTime
+      ? `${fmtTime(program.startTime)}${program.endTime ? ` – ${fmtTime(program.endTime)}` : ""}`
+      : null;
+
+  const rows = [
+    {
+      icon: Clock,
+      label: "Horaires",
+      value: recurring
+        ? `Tous les ${WEEKDAY_LONG[Number(program.dayOfWeek)] ?? ""}s${hours ? `, ${hours}` : ""}`
+        : hours ?? formatDate(program.startDate, "d MMMM yyyy"),
+    },
+    !recurring && {
+      icon: CalendarDays,
+      label: "Dates",
+      value: program.endDate
+        ? `Du ${formatDate(program.startDate, "d MMMM")} au ${formatDate(program.endDate, "d MMMM yyyy")}`
+        : formatDate(program.startDate, "d MMMM yyyy"),
+    },
+    recurring && {
+      icon: CalendarRange,
+      label: "Prochaine date",
+      value: formatDate(nextOccurrence(program), "EEEE d MMMM yyyy"),
+    },
+    program.location && { icon: MapPin, label: "Lieu", value: program.location },
+  ].filter(Boolean);
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <Badge tone={TONE[program.type] ?? "muted"}>{typeLabel}</Badge>
+        <span className={`inline-flex items-center gap-1.5 text-xs ${status.text}`}>
+          <span className={`w-2 h-2 rounded-full ${status.dot}`} />
+          {status.label}
+        </span>
+      </div>
+
+      <dl className="space-y-3 mb-4">
+        {rows.map(({ icon: Icon, label, value }) => (
+          <div key={label} className="flex items-start gap-3">
+            <Icon className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+            <div>
+              <dt className="text-[11px] uppercase tracking-wide text-soft">{label}</dt>
+              <dd className="text-sm font-medium text-ink">{value}</dd>
+            </div>
+          </div>
+        ))}
+      </dl>
+
+      {program.description && (
+        <>
+          <hr className="border-line mb-4" />
+          <p className="text-sm leading-relaxed text-[#4b5563] whitespace-pre-line">{program.description}</p>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function ProgrammePage() {
   const [active, setActive] = useState("JOURNALIER");
+  const [selected, setSelected] = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["programs", active],
@@ -164,13 +233,19 @@ export default function ProgrammePage() {
             description="Aucun programme n'est publié pour cette période pour le moment. Revenez bientôt."
           />
         ) : (
-          <Stagger className="grid md:grid-cols-2 gap-5" delay={0.15}>
+          <Stagger className="grid md:grid-cols-2 gap-5 items-stretch" delay={0.15}>
             {programs.map((program) => (
-              <Item key={program.id}><ProgramCard program={program} /></Item>
+              <Item key={program.id} className="h-full">
+                <ProgramCard program={program} onSelect={setSelected} />
+              </Item>
             ))}
           </Stagger>
         )}
       </section>
+
+      <Modal open={Boolean(selected)} onClose={() => setSelected(null)} title={selected?.title}>
+        {selected && <ProgramDetails program={selected} />}
+      </Modal>
     </>
   );
 }
