@@ -23,20 +23,29 @@ export const signRefreshToken = (user) =>
 /** Vérifie un token et renvoie son payload. */
 export const verifyToken = (token) => jwt.verify(token, SECRET);
 
-/** Cookie httpOnly du refresh token. */
+/** Cookie httpOnly du refresh token.
+ *  Production : frontend et API sur des domaines distincts → SameSite=None + Secure
+ *  (sinon le navigateur n'envoie jamais le cookie au rechargement). */
 export const setRefreshCookie = (res, token) => {
-  const secure = process.env.NODE_ENV === "production";
+  const production = process.env.NODE_ENV === "production";
   res.cookie("refreshToken", token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure,
+    sameSite: production ? "none" : "lax",
+    secure: production || undefined,
     path: "/api/auth",
     maxAge: (Number(process.env.REFRESH_TOKEN_TTL) || 2592000) * 1000,
   });
 };
 
-export const clearRefreshCookie = (res) =>
-  res.clearCookie("refreshToken", { httpOnly: true, sameSite: "lax", path: "/api/auth" });
+export const clearRefreshCookie = (res) => {
+  const production = process.env.NODE_ENV === "production";
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    sameSite: production ? "none" : "lax",
+    secure: production || undefined,
+    path: "/api/auth",
+  });
+};
 
 /** Extrait l'utilisateur depuis l'access token Bearer. */
 const getUserFromRequest = (req) => {

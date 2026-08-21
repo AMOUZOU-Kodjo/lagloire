@@ -44,7 +44,7 @@ export default function ConnexionPage() {
     setPasswordLoading(true);
     try {
       const res = await authApi.login({ email: email.trim(), password });
-      loginSuccess({ user: res.data.user, accessToken: res.data.accessToken });
+      loginSuccess(res.data);
       navigate(location.state?.from?.pathname || "/app", { replace: true });
     } catch (err) {
       const message = err.response?.data?.message || "Connexion impossible.";

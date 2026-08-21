@@ -21,7 +21,7 @@ export function useAdminLogin() {
     setLoading(true);
     try {
       const res = await authApi.login({ email, password });
-      loginSuccess({ user: res.data.user, accessToken: res.data.accessToken });
+      loginSuccess(res.data);
       navigate("/admin", { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || "Email ou mot de passe incorrect.");

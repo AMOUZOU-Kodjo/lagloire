@@ -42,12 +42,16 @@ http.interceptors.response.use(
       original._retry = true;
       try {
         if (!refreshPromise) {
-          refreshPromise = http.post("/auth/refresh").finally(() => {
-            refreshPromise = null;
-          });
+          const stored = useAuthStore.getState().refreshToken;
+          refreshPromise = http
+            .post("/auth/refresh", stored ? { refreshToken: stored } : {})
+            .finally(() => {
+              refreshPromise = null;
+            });
         }
         const { data } = await refreshPromise;
-        useAuthStore.getState().setAccessToken(data.data.accessToken);
+        // Rotation des jetons + persistance de la session renouvelée
+        useAuthStore.getState().updateTokens(data.data);
         original.headers.Authorization = `Bearer ${data.data.accessToken}`;
         return http(original);
       } catch (refreshError) {

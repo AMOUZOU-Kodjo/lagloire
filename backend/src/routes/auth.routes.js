@@ -84,8 +84,11 @@ router.post(
     await prisma.otpCode.update({ where: { id: otp.id }, data: { used: true } });
 
     const accessToken = signAccessToken(user);
-    setRefreshCookie(res, signRefreshToken(user));
-    ok(res, { user: toUser(user), accessToken });
+    const refreshToken = signRefreshToken(user);
+    setRefreshCookie(res, refreshToken);
+    // Le refresh token accompagne aussi la réponse : le frontend le garde en secours
+    // quand les cookies tiers sont bloqués (frontend et API sur des domaines différents).
+    ok(res, { user: toUser(user), accessToken, refreshToken });
   })
 );
 
@@ -115,8 +118,11 @@ router.post(
     });
 
     const accessToken = signAccessToken(user);
-    setRefreshCookie(res, signRefreshToken(user));
-    ok(res, { user: toUser(user), accessToken });
+    const refreshToken = signRefreshToken(user);
+    setRefreshCookie(res, refreshToken);
+    // Le refresh token accompagne aussi la réponse : le frontend le garde en secours
+    // quand les cookies tiers sont bloqués (frontend et API sur des domaines différents).
+    ok(res, { user: toUser(user), accessToken, refreshToken });
   })
 );
 
@@ -133,16 +139,21 @@ router.post(
     if (!valid) return fail(res, 401, "Email ou mot de passe incorrect.");
 
     const accessToken = signAccessToken(user);
-    setRefreshCookie(res, signRefreshToken(user));
-    ok(res, { user: toUser(user), accessToken });
+    const refreshToken = signRefreshToken(user);
+    setRefreshCookie(res, refreshToken);
+    // Le refresh token accompagne aussi la réponse : le frontend le garde en secours
+    // quand les cookies tiers sont bloqués (frontend et API sur des domaines différents).
+    ok(res, { user: toUser(user), accessToken, refreshToken });
   })
 );
 
-// POST /api/auth/refresh — refresh silencieux via cookie httpOnly
+// POST /api/auth/refresh — renouvelle l'access token.
+// Le refresh token vient du cookie httpOnly OU du corps de la requête (secours
+// quand le navigateur bloque les cookies tiers entre frontend et API).
 router.post(
   "/refresh",
   asyncHandler(async (req, res) => {
-    const token = req.cookies?.refreshToken;
+    const token = req.cookies?.refreshToken || req.body?.refreshToken;
     if (!token) return fail(res, 401, "Session expirée.");
 
     let payload;
@@ -160,7 +171,9 @@ router.post(
     });
     if (!user || !user.isActive) return fail(res, 401, "Session expirée.");
 
-    ok(res, { accessToken: signAccessToken(user) });
+    const refreshToken = signRefreshToken(user);
+    setRefreshCookie(res, refreshToken);
+    ok(res, { accessToken: signAccessToken(user), refreshToken });
   })
 );
 

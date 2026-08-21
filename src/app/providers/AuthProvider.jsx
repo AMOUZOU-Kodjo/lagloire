@@ -4,25 +4,29 @@ import { authApi } from "../../api/auth.api";
 
 export default function AuthProvider({ children }) {
   const setHydrating = useAuthStore((s) => s.setHydrating);
-  const loginSuccess = useAuthStore((s) => s.loginSuccess);
   const isHydrating = useAuthStore((s) => s.isHydrating);
 
   useEffect(() => {
     let cancelled = false;
 
     async function hydrate() {
+      // Ordre de restauration :
+      //   1) refresh token mémorisé (survit au blocage des cookies tiers)
+      //   2) cookie httpOnly classique
+      const stored = useAuthStore.getState().refreshToken;
       try {
-        // Tente un refresh silencieux via le cookie httpOnly déjà présent (session existante)
-        const refreshRes = await authApi.refresh();
-        const accessToken = refreshRes.data.accessToken;
-        // Indispensable : l'intercepteur axios lit le store pour injecter le Bearer
+        const res = await authApi.refresh(stored || undefined);
+        const { accessToken, refreshToken } = res.data;
         useAuthStore.getState().setAccessToken(accessToken);
         const meRes = await authApi.me();
         if (!cancelled) {
-          loginSuccess({ user: meRes.data, accessToken });
+          useAuthStore.getState().loginSuccess({ user: meRes.data, accessToken, refreshToken });
         }
       } catch {
-        if (!cancelled) setHydrating(false);
+        if (!cancelled) {
+          useAuthStore.getState().logout();
+          setHydrating(false);
+        }
       } finally {
         if (!cancelled) setHydrating(false);
       }
