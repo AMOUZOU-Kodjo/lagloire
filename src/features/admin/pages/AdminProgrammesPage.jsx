@@ -164,7 +164,7 @@ export default function AdminProgrammesPage() {
               {PROGRAM_TYPES.map((t) => <option key={t} value={t}>{label("PROGRAM_TYPE", t)}</option>)}
             </Select>
           </FormField>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="DATE DE DÉBUT" name="startDate" error={errors.startDate?.message}>
               <Input type="date" {...register("startDate")} />
             </FormField>

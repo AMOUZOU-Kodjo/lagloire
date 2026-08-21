@@ -29,7 +29,7 @@ export default function PageHero({ eyebrow, title, description, className = "" }
             <span /> {eyebrow}
           </div>
         )}
-        <h1 className="font-display text-4xl md:text-5xl text-[#37cdbe]">{title}</h1>
+        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-[#37cdbe]">{title}</h1>
         {description && <p className="mt-3 text-sm md:text-base max-w-lg mx-auto text-[#6b7280]">{description}</p>}
       </div>
     </div>

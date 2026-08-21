@@ -42,7 +42,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 card rounded-lg overflow-hidden z-50 text-ink">
+        <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2.5rem)] card rounded-lg overflow-hidden z-50 text-ink">
           <div className="flex items-center justify-between p-4 border-b border-line">
             <p className="font-semibold text-sm">Notifications</p>
             {unreadCount > 0 && (

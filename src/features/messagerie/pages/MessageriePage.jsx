@@ -61,9 +61,13 @@ export default function MessageriePage() {
   const otherUser = activeConversation?.participants?.find((p) => p.userId !== currentUser?.id)?.user;
 
   return (
-    <div className="flex bg-white rounded-lg overflow-hidden border border-line" style={{ height: "calc(100vh - 160px)" }}>
-      <div className="w-80 flex-shrink-0 border-r border-line flex flex-col">
-        <div className="p-5 border-b border-line">
+    <div className="flex bg-white rounded-lg overflow-hidden border border-line h-[calc(100vh-140px)] md:h-[calc(100vh-160px)]">
+      {/* Liste : pleine largeur sur mobile, colonne fixe au-delà de md.
+          Sur mobile, on la masque quand une conversation est ouverte. */}
+      <div
+        className={`${roomId && !showContacts ? "hidden md:flex" : "flex"} w-full md:w-80 flex-shrink-0 md:border-r border-line flex-col`}
+      >
+        <div className="p-4 md:p-5 border-b border-line">
           <div className="flex items-center justify-between">
             <p className="font-display text-xl">Messagerie</p>
             <button
@@ -114,11 +118,24 @@ export default function MessageriePage() {
         )}
       </div>
 
+      {/* Conversation : masquée sur mobile tant qu'aucune n'est choisie */}
       {!showContacts && (roomId && activeConversation ? (
-        <ChatWindow roomId={roomId} otherUser={otherUser} />
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* Bouton retour liste — mobile uniquement */}
+          <button
+            type="button"
+            onClick={() => navigate(basePath)}
+            className="md:hidden flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-[#2f9e93] border-b border-line bg-white"
+          >
+            ← Toutes les conversations
+          </button>
+          <div className="flex-1 min-h-0 flex flex-col">
+            <ChatWindow roomId={roomId} otherUser={otherUser} />
+          </div>
+        </div>
       ) : (
-        <div className="flex-1 hidden sm:flex items-center justify-center">
-          <EmptyState icon="💬" title="Sélectionnez une conversation" />
+        <div className="flex-1 hidden md:flex items-center justify-center">
+          <EmptyState icon="💬" title="Sélectionnez une conversation" description="Choisissez une discussion à gauche ou démarrez-en une avec le bouton +." />
         </div>
       ))}
     </div>

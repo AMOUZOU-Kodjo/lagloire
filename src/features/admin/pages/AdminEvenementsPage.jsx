@@ -165,7 +165,7 @@ export default function AdminEvenementsPage() {
           <FormField label="DESCRIPTION" name="description" error={errors.description?.message}>
             <Textarea placeholder="Description" rows={3} {...register("description")} />
           </FormField>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="DATE" name="date" error={errors.date?.message}>
               <Input type="date" {...register("date")} />
             </FormField>
@@ -175,7 +175,7 @@ export default function AdminEvenementsPage() {
               </Select>
             </FormField>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="HEURE DE DÉBUT" name="startTime" error={errors.startTime?.message}>
               <Input placeholder="Ex. 09:00" {...register("startTime")} />
             </FormField>
@@ -183,7 +183,7 @@ export default function AdminEvenementsPage() {
               <Input placeholder="Ex. 11:00" {...register("endTime")} />
             </FormField>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="LIEU" name="location" error={errors.location?.message}>
               <Input placeholder="Lieu" {...register("location")} />
             </FormField>

@@ -178,7 +178,7 @@ export default function ContactPage() {
                   Destinataire <span className="text-[#37cdbe] ml-1">*</span>
                 </span>
               </div>
-              <div className="grid grid-cols-2 gap-1 bg-[#f2f2f2] rounded-xl p-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 bg-[#f2f2f2] rounded-xl p-1">
                 <button type="button" onClick={() => setValue("recipientType", "APOTRE")} className={segmented("APOTRE")}>
                   L'apôtre / coordination
                 </button>

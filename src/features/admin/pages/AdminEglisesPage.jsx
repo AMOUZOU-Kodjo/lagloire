@@ -177,7 +177,7 @@ export default function AdminEglisesPage() {
           <FormField label="NOM" name="name" error={errors.name?.message}>
             <Input placeholder="Nom de l'église" {...register("name")} />
           </FormField>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="VILLE" name="city" error={errors.city?.message}>
               <Input placeholder="Ville" {...register("city")} />
             </FormField>
@@ -188,7 +188,7 @@ export default function AdminEglisesPage() {
           <FormField label="ADRESSE" name="address" error={errors.address?.message}>
             <Input placeholder="Adresse" {...register("address")} />
           </FormField>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="TÉLÉPHONE" name="phone" error={errors.phone?.message}>
               <Input placeholder="Téléphone" {...register("phone")} />
             </FormField>

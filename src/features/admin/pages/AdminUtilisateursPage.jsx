@@ -180,7 +180,7 @@ export default function AdminUtilisateursPage() {
       >
         {creating ? (
           <form onSubmit={handleSubmit((values) => createMutation.mutate(values))} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormField label="PRÉNOM" name="firstName" error={errors.firstName?.message}>
                 <Input placeholder="Prénom" {...register("firstName", { required: "Le prénom est requis" })} />
               </FormField>
@@ -215,7 +215,7 @@ export default function AdminUtilisateursPage() {
                 <Badge tone={managingUser.isActive ? "palm" : "brick"}>{managingUser.isActive ? "Compte actif" : "Compte désactivé"}</Badge>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField label="RÔLE">
                   <Select
                     value={editValues.role}
@@ -236,7 +236,7 @@ export default function AdminUtilisateursPage() {
                   </Select>
                 </FormField>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField label="TÉLÉPHONE">
                   <Input
                     placeholder="Ex. +228 90 00 00 00"

@@ -153,7 +153,7 @@ export default function MediaPublishModal({ open, onClose }) {
         </div>
 
         {/* Source : fichier ou lien */}
-        <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-sand-2 border border-line">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1 rounded-xl bg-sand-2 border border-line">
           <button
             type="button"
             onClick={() => setMode("file")}

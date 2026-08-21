@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { LogOut, User, Heart, ShieldCheck, LayoutDashboard } from "lucide-react";
+import { LogOut, User, Heart, ShieldCheck, LayoutDashboard, Menu, X } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { STAFF_ROLES } from "../../lib/constants";
 import { authApi } from "../../api/auth.api";
@@ -24,6 +24,7 @@ export default function Navbar() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -84,6 +85,16 @@ export default function Navbar() {
             </NavLink>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setMobileOpen((o) => !o)}
+          aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
+          aria-expanded={mobileOpen}
+          className="lg:hidden w-10 h-10 rounded-lg flex items-center justify-center text-[#1f2937] hover:bg-[#37cdbe]/10 transition"
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
 
         <div className="flex items-center gap-3">
           <Link
@@ -167,6 +178,48 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Menu mobile / tablette */}
+      {mobileOpen && (
+        <div className="lg:hidden border-t border-[#e5e6e6] bg-white shadow-lg">
+          <nav className="max-w-7xl mx-auto px-6 py-3 grid grid-cols-2 gap-1">
+            {LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.to === "/"}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  `px-3 py-2.5 rounded-lg text-sm transition ${
+                    isActive
+                      ? "text-[#37cdbe] bg-[#37cdbe]/10 font-medium"
+                      : "text-[#4b5563] hover:text-[#37cdbe] hover:bg-[#37cdbe]/10"
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+            <Link
+              to="/don"
+              onClick={() => setMobileOpen(false)}
+              className="col-span-2 mt-1 px-3 py-2.5 rounded-lg text-sm font-medium text-white text-center"
+              style={{ background: ACCENT }}
+            >
+              ❤ Faire un don
+            </Link>
+            {user && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="col-span-2 mb-1 px-3 py-2.5 rounded-lg text-sm text-[#dc2626] hover:bg-[#f2f2f2] transition text-left"
+              >
+                <LogOut size={15} className="inline mr-2" /> Se déconnecter ({user.firstName})
+              </button>
+            )}
+          </nav>
+        </div>
+      )}
     </nav>
   );
 }

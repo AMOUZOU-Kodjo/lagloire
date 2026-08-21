@@ -232,7 +232,7 @@ export default function HomePage() {
               variants={itemVariants}
               initial="hidden"
               animate="visible"
-              className="lg:w-3/4"
+              className="lg:w-[58%]"
             >
               <div className="relative">
                 {/* Badge de bienvenue */}
@@ -315,7 +315,7 @@ export default function HomePage() {
 
             {/* Section Image */}
             <motion.div
-              className="lg:w-1/2 flex justify-center"
+              className="lg:w-[42%] flex justify-center"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -405,7 +405,7 @@ export default function HomePage() {
 
       {/* EGLISES */}
       <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="flex items-end justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
           <div className="flex-1">
             <Eyebrow>Nos assemblées</Eyebrow>
             <h2 className="font-display text-3xl text-[#1f2937]">Cinq églises, une même famille</h2>
@@ -439,7 +439,7 @@ export default function HomePage() {
       {/* EVENEMENTS */}
       <section className="bg-[#f2f2f2] py-16">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-end justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
             <div className="flex-1">
               <Eyebrow>Agenda</Eyebrow>
               <h2 className="font-display text-3xl text-[#1f2937]">Prochains événements</h2>
@@ -456,7 +456,7 @@ export default function HomePage() {
 
       {/* ACTUALITES */}
       <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="flex items-end justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
           <div className="flex-1">
             <Eyebrow>Vie de la communauté</Eyebrow>
             <h2 className="font-display text-3xl text-[#1f2937]">Dernières actualités</h2>
@@ -465,9 +465,9 @@ export default function HomePage() {
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           {(posts ?? []).map((post, i) => (
-            <Link key={post.id} to={`/actualites/${post.id}`} className="card rounded-lg p-6 flex flex-row gap-5 hover:shadow-lg transition">
+            <Link key={post.id} to={`/actualites/${post.id}`} className="card rounded-lg p-6 flex flex-col sm:flex-row gap-5 hover:shadow-lg transition">
               <div
-                className="w-24 h-24 rounded-md flex-shrink-0"
+                className="w-full h-32 sm:w-24 sm:h-24 rounded-md flex-shrink-0"
                 style={{ background: i % 2 ? "linear-gradient(135deg,#37cdbe,#4a90e2)" : "linear-gradient(135deg,#4a90e2,#1f2937)" }}
               />
               <div>

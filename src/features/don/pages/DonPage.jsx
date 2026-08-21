@@ -80,7 +80,7 @@ export default function DonPage() {
           </div>
 
           <span className="text-xs font-mono mt-6 block text-soft">MONTANT (XAF)</span>
-          <div className="grid grid-cols-4 gap-2 mt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
             {AMOUNTS.map((a) => (
               <Button
                 key={a}

@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { BarChart3, UsersRound, Users, ShieldCheck, Gift, Church, CalendarDays, CalendarRange, RadioTower, Sunrise, Images, MessageSquare, LayoutDashboard, UserCircle, HandCoins } from "lucide-react";
+import { BarChart3, UsersRound, Users, ShieldCheck, Gift, Church, CalendarDays, CalendarRange, RadioTower, Sunrise, Images, MessageSquare, LayoutDashboard, UserCircle, HandCoins, Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useAuthStore } from "../../store/authStore";
 import { useNotificationsStore } from "../../store/notificationsStore";
@@ -33,6 +34,7 @@ const MEMBER_LINKS = (unreadCount) => [
 export default function AdminShellLayout() {
   const user = useAuthStore((s) => s.user);
   const unreadCount = useNotificationsStore((s) => s.unreadCount);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const links = ADMIN_LINKS.filter((l) => canAccessAdminPage(user?.role, l.to));
 
   return (
@@ -42,17 +44,29 @@ export default function AdminShellLayout() {
         secondaryTitle="Mon espace"
         secondaryLinks={MEMBER_LINKS(unreadCount)}
         badgeTag={user?.role ? undefined : "Admin"}
+        mobileOpen={mobileOpen}
+        onCloseMobile={() => setMobileOpen(false)}
       />
-      <main className="flex-1">
-        <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-5 bg-white border-b border-line">
-          <h1 className="font-display text-2xl">Back-office ETDV</h1>
+      <main className="flex-1 min-w-0">
+        <header className="sticky top-0 z-30 flex items-center gap-3 justify-between px-4 md:px-8 py-4 md:py-5 bg-white border-b border-line">
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Ouvrir le menu"
+              className="lg:hidden w-10 h-10 rounded-lg flex items-center justify-center text-ink hover:bg-sand-2 transition"
+            >
+              <Menu size={20} />
+            </button>
+            <h1 className="font-display text-xl md:text-2xl">Back-office ETDV</h1>
+          </div>
+          <div className="flex items-center gap-2 md:gap-3">
             <NotificationBell />
-            {user?.role && <RoleBadge role={user.role} />}
+            {user?.role && <RoleBadge role={user.role} className="hidden sm:inline-block" />}
             <Avatar firstName={user?.firstName} lastName={user?.lastName} src={user?.profile?.avatarUrl} />
           </div>
         </header>
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           <Outlet />
         </div>
       </main>
