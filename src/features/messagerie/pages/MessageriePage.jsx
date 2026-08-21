@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, X } from "lucide-react";
 import { chatApi } from "../../../api/chat.api";
@@ -11,8 +11,11 @@ import ChatWindow from "../components/ChatWindow";
 export default function MessageriePage() {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
+  // La même page sert l'espace membre (/app) et le back-office (/admin)
+  const basePath = location.pathname.startsWith("/admin") ? "/admin/messagerie" : "/app/messagerie";
   const [search, setSearch] = useState("");
   const [showContacts, setShowContacts] = useState(false);
   const [starting, setStarting] = useState(false);
@@ -48,7 +51,7 @@ export default function MessageriePage() {
       const res = await chatApi.startOrGet(userId);
       await queryClient.invalidateQueries({ queryKey: ["conversations"] });
       setShowContacts(false);
-      navigate(`/app/messagerie/${res.data.id}`);
+      navigate(`${basePath}/${res.data.id}`);
     } finally {
       setStarting(false);
     }
@@ -107,7 +110,7 @@ export default function MessageriePage() {
             <EmptyState icon="💬" title="Aucune conversation" description="Cliquez sur + pour écrire à un membre de l'église." />
           </div>
         ) : (
-          <ConversationList conversations={filtered} activeRoomId={roomId} onSelect={(id) => navigate(`/app/messagerie/${id}`)} />
+          <ConversationList conversations={filtered} activeRoomId={roomId} onSelect={(id) => navigate(`${basePath}/${id}`)} />
         )}
       </div>
 

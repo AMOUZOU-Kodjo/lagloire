@@ -111,6 +111,8 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminPageGuard path="/admin"><Suspense fallback={PageFallback}><AdminDashboardPage /></Suspense></AdminPageGuard> },
       { path: "utilisateurs", element: <AdminPageGuard path="/admin/utilisateurs"><Suspense fallback={PageFallback}><AdminUtilisateursPage /></Suspense></AdminPageGuard> },
+      { path: "messagerie", element: <Suspense fallback={PageFallback}><MessageriePage /></Suspense> },
+      { path: "messagerie/:roomId", element: <Suspense fallback={PageFallback}><MessageriePage /></Suspense> },
       { path: "medias", element: <AdminPageGuard path="/admin/medias"><Suspense fallback={PageFallback}><AdminMediasPage /></Suspense></AdminPageGuard> },
       { path: "moderation", element: <AdminPageGuard path="/admin/moderation"><Suspense fallback={PageFallback}><AdminModerationPage /></Suspense></AdminPageGuard> },
       { path: "dons-contacts", element: <AdminPageGuard path="/admin/dons-contacts"><Suspense fallback={PageFallback}><AdminDonsContactsPage /></Suspense></AdminPageGuard> },

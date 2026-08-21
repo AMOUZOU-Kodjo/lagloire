@@ -34,6 +34,7 @@ export const ADMIN_ACCESS = {
     "/admin/programmes",
     "/admin/direct",
     "/admin/prieres",
+    "/admin/messagerie",
   ],
   [ROLES.APOTRE]: [
     "/admin",
@@ -47,6 +48,7 @@ export const ADMIN_ACCESS = {
     "/admin/programmes",
     "/admin/direct",
     "/admin/prieres",
+    "/admin/messagerie",
   ],
   [ROLES.PASTEUR]: [
     "/admin",
@@ -56,6 +58,7 @@ export const ADMIN_ACCESS = {
     "/admin/programmes",
     "/admin/direct",
     "/admin/prieres",
+    "/admin/messagerie",
   ],
 };
 
