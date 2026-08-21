@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1F2937"/>
+      <stop offset="0.6" stop-color="#142A2E"/>
+      <stop offset="1" stop-color="#2C8F86"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0" stop-color="#E9C46A" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#E9C46A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="1125" fill="url(#bg)"/>
+  <circle cx="450" cy="520" r="400" fill="url(#glow)"/>
+  <g fill="#E9C46A">
+    <circle cx="180" cy="260" r="7" opacity="0.7"/>
+    <circle cx="740" cy="300" r="5" opacity="0.6"/>
+    <circle cx="160" cy="640" r="5" opacity="0.6"/>
+    <circle cx="760" cy="660" r="7" opacity="0.7"/>
+    <circle cx="250" cy="880" r="5" opacity="0.5"/>
+    <circle cx="690" cy="900" r="6" opacity="0.6"/>
+  </g>
+  <polygon points="450,300 490,515 600,510 510,453 539,545 450,485 361,545 390,453 300,510 410,515" fill="#E9C46A"/>
+  <g fill="#F0FBFA">
+    <circle cx="640" cy="640" r="34"/>
+    <rect x="668" y="600" width="10" height="130" rx="5"/>
+    <path d="M668 600 C 700 605 700 640 678 648" fill="#F0FBFA"/>
+  </g>
+  <text x="450" y="900" text-anchor="middle" font-family="Georgia, serif" font-size="48" font-weight="bold" fill="#FFFFFF" opacity="0.95">Chorale</text>
+  <text x="450" y="955" text-anchor="middle" font-family="Georgia, serif" font-size="32" fill="#FFFFFF" opacity="0.78">Fête de Noël</text>
+  <text x="450" y="1010" text-anchor="middle" font-family="monospace" font-size="22" letter-spacing="8" fill="#E9C46A">ETDV · LOMÉ</text>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123B38"/>
+      <stop offset=".55" stop-color="#1F2937"/>
+      <stop offset="1" stop-color="#142A2E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".82" r=".68">
+      <stop offset="0" stop-color="#37CDBE" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#37CDBE" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="44" height="44" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.6" fill="#FFFFFF" opacity=".05"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <rect width="1600" height="1000" fill="url(#dots)"/>
+  <circle cx="800" cy="1520" r="1060" fill="none" stroke="#37CDBE" stroke-opacity=".3"/>
+  <circle cx="800" cy="1520" r="860" fill="none" stroke="#37CDBE" stroke-opacity=".18"/>
+  <circle cx="800" cy="1520" r="680" fill="url(#glow)"/>
+  <g transform="translate(800 470)">
+    <rect x="-22" y="-170" width="44" height="340" rx="22" fill="#F0FBFA" opacity=".92"/>
+    <rect x="-110" y="-72" width="220" height="44" rx="22" fill="#37CDBE" opacity=".95"/>
+  </g>
+</svg>

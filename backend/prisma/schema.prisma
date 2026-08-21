@@ -1,0 +1,470 @@
+// Schéma Postgres de l'API ETDV — miroir exact des types du frontend
+// (src/lib/constants.js, src/features/*/schemas, src/api/*).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ===================== ENUMS =====================
+
+enum Role {
+  ADMIN
+  APOTRE
+  PASTEUR
+  FIDELES
+  VISITEUR
+}
+
+enum Ministry {
+  PASTEUR_TITULAIRE
+  PASTEUR_ADJOINT
+  APOTRE
+  DIACRE
+  DIACONESSE
+  MAMAN_PASTEUR
+  EVANGELISTE
+  ENSEIGNANT
+  RESPONSABLE_JEUNESSE
+  RESPONSABLE_ADORATION
+  AUCUN
+}
+
+enum Gender {
+  HOMME
+  FEMME
+}
+
+enum MaritalStatus {
+  CELIBATAIRE
+  MARIE
+  DIVORCE
+  VEUF
+}
+
+enum EventType {
+  CULTE
+  CONFERENCE
+  REUNION
+  BAPTEME
+  MARIAGE
+  JEUNE
+  FORMATION
+  AUTRE
+}
+
+enum EventStatus {
+  PLANIFIE
+  EN_COURS
+  TERMINE
+  ANNULE
+}
+
+enum ProgramType {
+  ANNUEL
+  MENSUEL
+  HEBDOMADAIRE
+  JOURNALIER
+}
+
+enum MediaType {
+  PHOTO
+  AUDIO
+  VIDEO
+}
+
+enum MediaStatus {
+  EN_ATTENTE
+  APPROUVE
+  REJETE
+}
+
+enum DonationType {
+  OFFRANDE
+  DIME
+  PROJET
+}
+
+enum DonationStatus {
+  EN_ATTENTE
+  CONFIRME
+}
+
+enum PaymentMethod {
+  FLOOZ
+  TMONEY
+  PAYPAL
+  CARTE
+}
+
+enum RegistrationStatus {
+  EN_ATTENTE
+  VALIDE
+  ANNULE
+}
+
+enum LiveType {
+  INTERNE
+  YOUTUBE
+}
+
+enum LiveStatus {
+  PLANIFIE
+  EN_DIRECT
+  TERMINE
+}
+
+enum NotificationType {
+  MESSAGE
+  EVENT
+  PROGRAM
+  PRAYER
+  LIVE
+}
+
+enum MessageType {
+  TEXTE
+  IMAGE
+  AUDIO
+  VIDEO
+}
+
+// ===================== MODÈLES =====================
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String? // bcrypt — réservé aux rôles staff (login email + mot de passe)
+  firstName     String
+  lastName      String
+  phone         String?
+  role          Role           @default(VISITEUR)
+  ministry      Ministry?
+  isActive      Boolean        @default(true)
+  churchId      String?
+  church        Church?        @relation(fields: [churchId], references: [id], onDelete: SetNull)
+
+  profile       Profile?
+  posts         Post[]         @relation("PostAuthor")
+  postReads     PostRead[]
+  media         Media[]        @relation("MediaAuthor")
+  prayers       MorningPrayer[]
+  liveStreams   LiveStream[]
+  donations     Donation[]
+  messages      ContactMessage[]
+  registrations EventRegistration[]
+  participantIn ConversationParticipant[]
+  sentMessages  ChatMessage[]  @relation("ChatSender")
+  notifications Notification[]
+  otpCodes      OtpCode[]
+  pageViews     PageView[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([churchId])
+}
+
+model Profile {
+  id            String        @id @default(cuid())
+  userId        String        @unique
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatarUrl     String?
+  city          String?
+  bio           String?
+  gender        Gender?
+  maritalStatus MaritalStatus?
+}
+
+model Church {
+  id          String   @id @default(cuid())
+  name        String
+  city        String
+  country     String   @default("Togo")
+  address     String?
+  phone       String?
+  email       String?
+  description String?
+  imageUrl    String?
+
+  users       User[]
+  events      Event[]
+  programs    Program[]
+  donations   Donation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  type        EventType   @default(CULTE)
+  date        DateTime
+  startTime   String?
+  endTime     String?
+  location    String?
+  maxCapacity Int?
+  status      EventStatus @default(PLANIFIE)
+  churchId    String?
+  church      Church?     @relation(fields: [churchId], references: [id], onDelete: SetNull)
+
+  registrations EventRegistration[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([type])
+}
+
+model EventRegistration {
+  id          String             @id @default(cuid())
+  eventId      String
+  event        Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status       RegistrationStatus @default(EN_ATTENTE)
+  validatedAt  DateTime?
+  createdAt    DateTime           @default(now())
+
+  @@unique([eventId, userId])
+}
+
+model Program {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  type        ProgramType @default(HEBDOMADAIRE)
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?
+  churchId    String?
+  church      Church?     @relation(fields: [churchId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+}
+
+model MorningPrayer {
+  id           String    @id @default(cuid())
+  title        String
+  content      String
+  bibleVerse   String?
+  status       String    @default("PUBLIE")
+  scheduledFor DateTime?
+  publishedAt  DateTime?
+  authorId     String
+  author       User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([status, scheduledFor])
+}
+
+model PostCategory {
+  id    String @id @default(cuid())
+  name  String @unique
+  posts Post[]
+}
+
+model Post {
+  id          String       @id @default(cuid())
+  title       String
+  excerpt     String?
+  content     String
+  publishedAt DateTime     @default(now())
+  authorId    String
+  author      User         @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    PostCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  reads PostRead[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([publishedAt])
+}
+
+model PostRead {
+  id     String   @id @default(cuid())
+  postId String
+  post   Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model Media {
+  id            String      @id @default(cuid())
+  type          MediaType
+  title         String
+  url           String
+  thumbnailUrl  String?
+  description   String?
+  status        MediaStatus @default(EN_ATTENTE)
+  visible       Boolean     @default(true)
+  authorId      String
+  author        User        @relation("MediaAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([type])
+}
+
+model LiveStream {
+  id             String     @id @default(cuid())
+  title          String
+  type           LiveType   @default(INTERNE)
+  status         LiveStatus @default(PLANIFIE)
+  youtubeVideoId String?
+  streamUrl      String?
+  embedUrl       String?
+  startedAt      DateTime?
+  endedAt        DateTime?
+  authorId       String?
+  author         User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+model Donation {
+  id        String         @id @default(cuid())
+  type      DonationType   @default(OFFRANDE)
+  amount    Float
+  currency  String         @default("XOF")
+  method    PaymentMethod
+  phone     String?
+  name      String?
+  email     String?
+  anonymous Boolean        @default(false)
+  reference String?
+  status    DonationStatus @default(EN_ATTENTE)
+  donorId   String?
+  donor     User?          @relation(fields: [donorId], references: [id], onDelete: SetNull)
+  churchId  String?
+  church    Church?        @relation(fields: [churchId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ContactMessage {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  subject       String?
+  message       String
+  recipientType String // APOTRE | PASTEUR
+  recipientId   String?
+  recipient     User?    @relation(fields: [recipientId], references: [id], onDelete: SetNull)
+  isRead        Boolean  @default(false)
+  readAt        DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([isRead])
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  type      String   @default("abonnee")
+  active    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model Conversation {
+  id           String                     @id @default(cuid())
+  participants ConversationParticipant[]
+  messages     ChatMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+}
+
+model ChatMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation("ChatSender", fields: [senderId], references: [id], onDelete: Cascade)
+  content        String
+  messageType    MessageType  @default(TEXTE)
+  isRead         Boolean      @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String?
+  link      String?
+  isRead    Boolean          @default(false)
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+}
+
+model OtpCode {
+  id        String    @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  used      Boolean   @default(false)
+  user      User?     @relation(fields: [email], references: [email])
+
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+}
+
+model PageView {
+  id     String @id @default(cuid())
+  path   String
+  date   DateTime @default(now())
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  @@index([date])
+}

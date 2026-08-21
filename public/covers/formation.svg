@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16324F"/>
+      <stop offset=".55" stop-color="#1F2937"/>
+      <stop offset="1" stop-color="#12202E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".82" r=".65">
+      <stop offset="0" stop-color="#4A90E2" stop-opacity=".34"/>
+      <stop offset="1" stop-color="#4A90E2" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="44" height="44" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.6" fill="#FFFFFF" opacity=".05"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <rect width="1600" height="1000" fill="url(#dots)"/>
+  <circle cx="800" cy="1520" r="1060" fill="none" stroke="#4A90E2" stroke-opacity=".28"/>
+  <circle cx="800" cy="1520" r="860" fill="none" stroke="#4A90E2" stroke-opacity=".16"/>
+  <circle cx="800" cy="1520" r="660" fill="url(#glow)"/>
+  <g transform="translate(800 460)">
+    <path d="M0 -70 C -46 -96 -128 -100 -180 -78 L -180 96 C -128 74 -46 78 0 104 C 46 78 128 74 180 96 L 180 -78 C 128 -100 46 -96 0 -70 Z" fill="none" stroke="#4A90E2" stroke-width="16" stroke-linejoin="round" opacity=".9"/>
+    <path d="M0 -70 L 0 104" stroke="#F0FBFA" stroke-width="12" stroke-linecap="round" opacity=".8"/>
+    <path d="M-140 -34 C -96 -48 -40 -46 -22 -30 M-140 22 C -96 8 -40 10 -22 26 M140 -34 C 96 -48 40 -46 22 -30 M140 22 C 96 8 40 10 22 26" stroke="#F0FBFA" stroke-width="9" stroke-linecap="round" fill="none" opacity=".5"/>
+  </g>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#142A2E"/>
+      <stop offset="0.55" stop-color="#1F2937"/>
+      <stop offset="1" stop-color="#2C8F86"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.56" r="0.6">
+      <stop offset="0" stop-color="#37CDBE" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#37CDBE" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="1125" fill="url(#bg)"/>
+  <circle cx="450" cy="640" r="420" fill="url(#glow)"/>
+  <g fill="#37CDBE">
+    <rect x="230" y="570" width="26" height="120" rx="13"/>
+    <rect x="286" y="500" width="26" height="190" rx="13"/>
+    <rect x="342" y="430" width="26" height="260" rx="13"/>
+    <rect x="398" y="380" width="26" height="310" rx="13" opacity="0.65"/>
+    <rect x="454" y="360" width="26" height="330" rx="13"/>
+    <rect x="510" y="380" width="26" height="310" rx="13" opacity="0.65"/>
+    <rect x="566" y="430" width="26" height="260" rx="13"/>
+    <rect x="622" y="500" width="26" height="190" rx="13"/>
+    <rect x="678" y="570" width="26" height="120" rx="13"/>
+  </g>
+  <circle cx="272" cy="640" r="10" fill="#F0FBFA" opacity="0.85"/>
+  <text x="450" y="905" text-anchor="middle" font-family="Georgia, serif" font-size="46" font-weight="bold" fill="#FFFFFF" opacity="0.95">Louange du dimanche</text>
+  <text x="450" y="965" text-anchor="middle" font-family="monospace" font-size="22" letter-spacing="8" fill="#37CDBE">ETDV · LOMÉ</text>
+</svg>
