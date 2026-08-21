@@ -19,11 +19,13 @@ export default function AdminDonsContactsPage() {
 
   const { data: donations, isLoading: donationsLoading } = useQuery({
     queryKey: queryKeys.donations.list({ admin: true }),
+    refetchInterval: 30_000,
     queryFn: () => donationsApi.all({ limit: 10 }).then((r) => r.data),
   });
 
   const { data: contacts, isLoading: contactsLoading } = useQuery({
     queryKey: queryKeys.contacts.list({ admin: true }),
+    refetchInterval: 30_000,
     queryFn: () => contactApi.list({ limit: 10 }).then((r) => r.data),
   });
 

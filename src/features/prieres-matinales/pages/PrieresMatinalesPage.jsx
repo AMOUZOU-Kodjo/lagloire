@@ -32,6 +32,7 @@ export default function PrieresMatinalesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["morning-prayers"],
+    refetchInterval: 60_000,
     queryFn: () => morningPrayersApi.list({ limit: 10 }).then((r) => r.data),
   });
 

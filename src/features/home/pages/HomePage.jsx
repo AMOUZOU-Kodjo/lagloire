@@ -122,22 +122,26 @@ function Eyebrow({ children }) {
 export default function HomePage() {
   const { data: currentLive } = useQuery({
     queryKey: queryKeys.live.current,
+    refetchInterval: 30_000,
     queryFn: () => liveStreamApi.current().then((r) => r.data),
     refetchInterval: 15000,
   });
 
   const { data: events } = useQuery({
     queryKey: ["events", "home"],
+    refetchInterval: 60_000,
     queryFn: () => eventsApi.list({ limit: 3, status: "PLANIFIE" }).then((r) => r.data),
   });
 
   const { data: posts } = useQuery({
     queryKey: ["posts", "home"],
+    refetchInterval: 60_000,
     queryFn: () => postsApi.list({ limit: 2 }).then((r) => r.data),
   });
 
   const { data: churches } = useQuery({
     queryKey: ["churches", "home"],
+    refetchInterval: 60_000,
     queryFn: () => churchApi.list().then((r) => r.data),
   });
 

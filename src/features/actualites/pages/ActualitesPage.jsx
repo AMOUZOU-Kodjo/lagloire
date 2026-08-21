@@ -9,6 +9,7 @@ import { postCover } from "../../../lib/covers";
 export default function ActualitesPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["posts", "list"],
+    refetchInterval: 60_000,
     queryFn: () => postsApi.list({ limit: 10 }).then((r) => r.data),
   });
 

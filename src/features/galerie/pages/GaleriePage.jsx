@@ -62,6 +62,7 @@ export default function GaleriePage() {
 
   const { data, isPending } = useQuery({
     queryKey: ["media", { type }],
+    refetchInterval: 60_000,
     queryFn: () => mediaApi.list({ type: type || undefined, limit: 20 }).then((r) => r.data),
   });
 

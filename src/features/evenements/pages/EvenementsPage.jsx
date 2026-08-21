@@ -17,6 +17,7 @@ export default function EvenementsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["events", { type, page }],
+    refetchInterval: 60_000,
     queryFn: () => eventsApi.list({ type: type || undefined, page, limit: 9 }).then((r) => r),
   });
 
