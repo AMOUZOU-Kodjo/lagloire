@@ -4,7 +4,7 @@ import { useAuthStore } from "../../store/authStore";
 import { authApi } from "../../api/auth.api";
 import { Badge } from "../ui/Badge";
 
-export default function Sidebar({ links, badgeTag, onLogoutPath = "/" }) {
+export default function Sidebar({ links, secondaryTitle, secondaryLinks = [], badgeTag, onLogoutPath = "/" }) {
   const logout = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
 
@@ -16,6 +16,22 @@ export default function Sidebar({ links, badgeTag, onLogoutPath = "/" }) {
       window.location.href = onLogoutPath;
     }
   }
+
+  const renderLink = (link) => {
+    const Icon = link.icon;
+    return (
+      <NavLink
+        key={link.to}
+        to={link.to}
+        end={link.end}
+        className={({ isActive }) => `side-link ${isActive ? "active" : ""}`}
+      >
+        <Icon size={18} strokeWidth={2} />
+        <span>{link.label}</span>
+        {link.count ? <Badge tone={link.tone ?? "gold"} className="ml-auto">{link.count}</Badge> : null}
+      </NavLink>
+    );
+  };
 
   return (
     <aside className="w-64 flex-shrink-0 hidden lg:flex flex-col bg-white border-r border-line sticky top-0 h-screen overflow-y-auto">
@@ -37,21 +53,17 @@ export default function Sidebar({ links, badgeTag, onLogoutPath = "/" }) {
       </Link>
 
       <nav className="flex-1 px-3 space-y-1">
-        {links.map((link) => {
-          const Icon = link.icon;
-          return (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.end}
-              className={({ isActive }) => `side-link ${isActive ? "active" : ""}`}
-            >
-              <Icon size={18} strokeWidth={2} />
-              <span>{link.label}</span>
-              {link.count ? <Badge tone={link.tone ?? "gold"} className="ml-auto">{link.count}</Badge> : null}
-            </NavLink>
-          );
-        })}
+        {links.map(renderLink)}
+        {secondaryLinks.length > 0 && (
+          <>
+            <div className="pt-4 pb-1 px-3">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-soft">
+                {secondaryTitle || "Mon espace"}
+              </p>
+            </div>
+            {secondaryLinks.map(renderLink)}
+          </>
+        )}
       </nav>
 
       <div className="p-3 border-t border-line">

@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { BarChart3, UsersRound, Users, ShieldCheck, Gift, Church, CalendarDays, CalendarRange, RadioTower, Sunrise, Images, MessageSquare } from "lucide-react";
+import { BarChart3, UsersRound, Users, ShieldCheck, Gift, Church, CalendarDays, CalendarRange, RadioTower, Sunrise, Images, MessageSquare, LayoutDashboard, UserCircle, HandCoins } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useAuthStore } from "../../store/authStore";
 import { useNotificationsStore } from "../../store/notificationsStore";
@@ -10,7 +10,6 @@ import NotificationBell from "../../features/notifications/components/Notificati
 const ADMIN_LINKS = [
   { to: "/admin", label: "Tableau de bord", icon: BarChart3, end: true },
   { to: "/admin/utilisateurs", label: "Utilisateurs", icon: UsersRound },
-  { to: "/admin/messagerie", label: "Messagerie", icon: MessageSquare },
   { to: "/admin/medias", label: "Médias", icon: Images },
   { to: "/admin/moderation", label: "Modération", icon: ShieldCheck },
   { to: "/admin/dons-contacts", label: "Dons & contacts", icon: Gift },
@@ -22,16 +21,27 @@ const ADMIN_LINKS = [
   { to: "/admin/prieres", label: "Prières", icon: Sunrise },
 ];
 
+// Pages de l'espace membre — l'administrateur est aussi un membre
+const MEMBER_LINKS = (unreadCount) => [
+  { to: "/app", label: "Tableau de bord", icon: LayoutDashboard, end: true },
+  { to: "/app/messagerie", label: "Messagerie", icon: MessageSquare, count: unreadCount || undefined },
+  { to: "/app/profil", label: "Mon profil", icon: UserCircle },
+  { to: "/app/dons", label: "Mes dons", icon: HandCoins },
+];
+
 export default function AdminShellLayout() {
   const user = useAuthStore((s) => s.user);
   const unreadCount = useNotificationsStore((s) => s.unreadCount);
-  const links = ADMIN_LINKS.filter((l) => canAccessAdminPage(user?.role, l.to)).map((l) =>
-    l.to === "/admin/messagerie" ? { ...l, count: unreadCount || undefined } : l
-  );
+  const links = ADMIN_LINKS.filter((l) => canAccessAdminPage(user?.role, l.to));
 
   return (
     <div className="flex min-h-screen bg-sand">
-      <Sidebar links={links} badgeTag={user?.role ? undefined : "Admin"} />
+      <Sidebar
+        links={links}
+        secondaryTitle="Mon espace"
+        secondaryLinks={MEMBER_LINKS(unreadCount)}
+        badgeTag={user?.role ? undefined : "Admin"}
+      />
       <main className="flex-1">
         <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-5 bg-white border-b border-line">
           <h1 className="font-display text-2xl">Back-office ETDV</h1>
