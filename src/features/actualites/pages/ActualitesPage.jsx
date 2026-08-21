@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { postsApi } from "../../../api/posts.api";
-import { mockPosts } from "../../../lib/mockData";
 import { Button, EmptyState, PageHero } from "../../../components/ui";
 import { Stagger, Item } from "../../../components/ui/motion";
 import { formatDate, truncate } from "../../../lib/formatters";
@@ -11,7 +10,6 @@ export default function ActualitesPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["posts", "list"],
     queryFn: () => postsApi.list({ limit: 10 }).then((r) => r.data),
-    placeholderData: mockPosts,
   });
 
   const posts = data ?? [];

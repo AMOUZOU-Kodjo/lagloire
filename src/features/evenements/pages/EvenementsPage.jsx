@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { eventsApi } from "../../../api/events.api";
-import { mockEvents } from "../../../lib/mockData";
 import { EVENT_TYPES } from "../../../lib/constants";
 import { Pagination, CardSkeleton, EmptyState, PageHero } from "../../../components/ui";
 import { Stagger, Item } from "../../../components/ui/motion";
@@ -19,7 +18,6 @@ export default function EvenementsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["events", { type, page }],
     queryFn: () => eventsApi.list({ type: type || undefined, page, limit: 9 }).then((r) => r),
-    placeholderData: { data: mockEvents, pagination: { page: 1, pages: 1, total: mockEvents.length } },
   });
 
   const events = data?.data ?? [];

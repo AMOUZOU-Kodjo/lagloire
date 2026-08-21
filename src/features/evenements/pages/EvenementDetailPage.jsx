@@ -4,7 +4,6 @@ import { ArrowLeft, Calendar, Clock, MapPin, Users, CheckCircle2 } from "lucide-
 import { eventsApi } from "../../../api/events.api";
 import { eventRegistrationsApi } from "../../../api/eventRegistrations.api";
 import { useAuthStore } from "../../../store/authStore";
-import { mockEvents } from "../../../lib/mockData";
 import { queryKeys } from "../../../lib/queryKeys";
 import { Card, Button, Avatar } from "../../../components/ui";
 import { Stagger, Item } from "../../../components/ui/motion";
@@ -49,7 +48,6 @@ export default function EvenementDetailPage() {
   const { data: event } = useQuery({
     queryKey: queryKeys.events.detail(id),
     queryFn: () => eventsApi.getById(id).then((r) => r.data),
-    placeholderData: mockEvents.find((e) => e.id === id) ?? mockEvents[0],
   });
 
   const registerMutation = useMutationFeedback({

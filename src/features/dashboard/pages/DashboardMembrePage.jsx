@@ -4,7 +4,6 @@ import { programsApi } from "../../../api/programs.api";
 import { eventRegistrationsApi } from "../../../api/eventRegistrations.api";
 import { donationsApi } from "../../../api/donations.api";
 import { chatApi } from "../../../api/chat.api";
-import { mockDailyVerse } from "../../../lib/mockData";
 import { Card, Badge, Button, ArcBadge } from "../../../components/ui";
 import { formatAmount } from "../../../lib/formatters";
 
@@ -15,7 +14,6 @@ export default function DashboardMembrePage() {
   const { data: dailyVerse } = useQuery({
     queryKey: ["daily-verse"],
     queryFn: () => programsApi.dailyVerse().then((r) => r.data),
-    placeholderData: mockDailyVerse,
   });
 
   const { data: registrations } = useQuery({

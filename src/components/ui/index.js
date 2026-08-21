@@ -8,7 +8,6 @@ export { default as Modal } from "./Modal";
 export { EmptyState, Skeleton, CardSkeleton } from "./EmptyState";
 export { default as Pagination } from "./Pagination";
 export { default as DawnArcHeader, ArcBadge } from "./DawnArcHeader";
-export { default as DataTable } from "./DataTable";
 export { default as PageHeader } from "./PageHeader";
 export { default as PageHero } from "./PageHero";
 export { default as FormField } from "./FormField";

@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ArrowLeft, Calendar, Eye, Share2, ThumbsUp } from "lucide-react";
 import { postsApi } from "../../../api/posts.api";
-import { mockPosts } from "../../../lib/mockData";
 import { Card, Avatar } from "../../../components/ui";
 import { Stagger, Item } from "../../../components/ui/motion";
 import { formatDate } from "../../../lib/formatters";
@@ -20,7 +19,6 @@ export default function ActualiteDetailPage() {
   const { data: post } = useQuery({
     queryKey: ["post", id],
     queryFn: () => postsApi.getById(id).then((r) => r.data),
-    placeholderData: mockPosts.find((p) => p.id === id) ?? mockPosts[0],
   });
 
   const markReadMutation = useMutation({ mutationFn: () => postsApi.markRead(id) });

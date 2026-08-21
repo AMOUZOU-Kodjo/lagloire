@@ -15,7 +15,6 @@ import { postsApi } from "../../../api/posts.api";
 import { churchApi } from "../../../api/church.api";
 import { liveStreamApi } from "../../../api/liveStream.api";
 import { statsApi } from "../../../api/stats.api";
-import { mockEvents, mockPosts, mockChurches } from "../../../lib/mockData";
 import { queryKeys } from "../../../lib/queryKeys";
 import { Card } from "../../../components/ui";
 import EventCard from "../../evenements/components/EventCard";
@@ -130,19 +129,16 @@ export default function HomePage() {
   const { data: events } = useQuery({
     queryKey: ["events", "home"],
     queryFn: () => eventsApi.list({ limit: 3, status: "PLANIFIE" }).then((r) => r.data),
-    placeholderData: mockEvents,
   });
 
   const { data: posts } = useQuery({
     queryKey: ["posts", "home"],
     queryFn: () => postsApi.list({ limit: 2 }).then((r) => r.data),
-    placeholderData: mockPosts,
   });
 
   const { data: churches } = useQuery({
     queryKey: ["churches", "home"],
     queryFn: () => churchApi.list().then((r) => r.data),
-    placeholderData: mockChurches,
   });
 
   const { data: globalStats } = useQuery({
