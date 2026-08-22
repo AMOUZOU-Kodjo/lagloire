@@ -19,8 +19,8 @@ const tokens = {
     soft: { DEFAULT: "#6B7280", dark: "#4B5563" },
   },
   fontFamily: {
-    display: ["Fraunces", "ui-serif", "Georgia", "serif"],
-    sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+    display: ["Poppins", "ui-sans-serif", "system-ui", "sans-serif"],
+    sans: ["Poppins", "ui-sans-serif", "system-ui", "sans-serif"],
     mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
   },
   borderRadius: {
